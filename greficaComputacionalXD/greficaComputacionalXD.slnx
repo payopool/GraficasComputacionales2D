@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="greficaComputacionalXD/greficaComputacionalXD.vcxproj" />
+  <Project Path="greficaComputacionalXD/greficaComputacionalXD.vcxproj" Id="900d0f29-5cc0-4cda-ba8d-b0eb4bc596a3" />
 </Solution>
