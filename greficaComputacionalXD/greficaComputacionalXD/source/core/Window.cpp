@@ -16,6 +16,10 @@ Window::Window(int width, int height, const std::string& title)
     }
 }
 
+Window :: ~Window() {
+    SAFE_PTR_RELEASE(m_window);
+};
+
 bool
 Window::isOpen() const
 {
@@ -69,5 +73,16 @@ void Window::render() {
 }
 void Window::destroy() {
     SAFE_PTR_RELEASE(m_window);
+}
+
+void Window::close() {
+    if (m_window)
+    {
+        m_window->close();
+    }
+    else
+    {
+        ERROR("Window", "close", "Window is null");
+    }
 }
 
