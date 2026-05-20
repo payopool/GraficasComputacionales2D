@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\core\Window.cpp" />
     <ClCompile Include="source\Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\core\Window.h" />
     <ClInclude Include="include\Prerequisitos.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
