@@ -3,9 +3,7 @@ class Window {
 public:
 	Window() = default;
 	Window(int  width, int hight, const std::string& title);
-	~Window() {
-		SAFE_PTR_RELEASE(m_window);
-	};
+	~Window();
 
 	//void handleEvents(EngineGui& engineGui);
 
@@ -34,9 +32,10 @@ public:
 	void 
 	destroy();
 
+	sf::RenderWindow* m_window;
 private:
 	sf::View m_view;
-	sf::RenderWindow* m_window; 
+	
 	sf::Time deltatime;
 	sf::Clock clock;
 

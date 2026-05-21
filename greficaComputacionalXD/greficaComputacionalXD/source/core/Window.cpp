@@ -23,7 +23,7 @@ Window :: ~Window() {
 bool
 Window::isOpen() const
 {
-    if (!m_window)
+    if (m_window)
     {
         return m_window && m_window->isOpen();
     }
