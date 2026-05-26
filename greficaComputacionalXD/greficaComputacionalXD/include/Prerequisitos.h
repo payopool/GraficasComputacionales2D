@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -6,6 +7,7 @@
 #include <map>
 #include <fstream>
 #include <unordered_map>
+#include <memory>
 
 // third parties
 #include <SFML/Graphics.hpp>
@@ -29,4 +31,13 @@
     std::cerr << os_.str();                                       \
     exit(1);                                                      \
 }
+enum
+    ShapeType {
+    EMPTY = 0,
+    CIRCLE = 1,
+    RECTANGLE = 2,
+    TRINAGLE = 3,
+    POLYGON = 4,
+    SQUARE = 5
+};
 

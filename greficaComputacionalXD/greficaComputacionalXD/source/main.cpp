@@ -1,32 +1,47 @@
 #include "Prerequisitos.h"
 #include "core/Window.h"
+#include "core/CShape.h" // Cuidado con las mayúsculas en el nombre del archivo
+
 Window* g_window = nullptr;
-sf::CircleShape shape (50.f);
+CShape shape(ShapeType::CIRCLE); // Creamos tu figura tipo círculo
+
+void destroy() {
+    SAFE_PTR_RELEASE(g_window);
+}
+
 int main()
 {
-    // create the window
-	g_window = new Window(800, 600, "My window");
-   // sf::RenderWindow window(sf::VideoMode({ 800, 600 }), "My window");
-	shape.setFillColor(sf::Color(100,250,50));
+    // 1. Crear la ventana
+    g_window = new Window(800, 600, "My window");
 
-    // run the program as long as the window is open
+    // 2. Cambiar el color de la figura correctamente
+    // Obtenemos el puntero de SFML con getShape() y le asignamos el color
+    if (shape.getShape() != nullptr) {
+        shape.getShape()->setFillColor(sf::Color(100, 250, 50));
+    }
+
+    // Bucle principal del juego
     while (g_window->isOpen())
     {
-        // check all the window's events that were triggered since the last iteration of the loop
-		while (const std::optional event = g_window->m_window->pollEvent())
+        // Manejo de eventos
+        while (const std::optional event = g_window->m_window->pollEvent())
         {
-            // "close requested" event: we close the window
             if (event->is<sf::Event::Closed>())
                 g_window->close();
-			g_window->destroy();
         }
 
-        // clear the window with black color
+        // Limpiar la pantalla con color negro
         g_window->clear(sf::Color::Black);
 
-        g_window->draw(shape);
+        // 3. Dibujar la figura usando su propio método draw
+        // Le pasamos la referencia de nuestra ventana (*g_window)
+        shape.draw(*g_window);
 
-        // end the current frame
+        // Mostrar lo que se dibujó en la pantalla
         g_window->display();
     }
+
+    // Limpieza de memoria al cerrar
+    destroy();
+    return 0;
 }

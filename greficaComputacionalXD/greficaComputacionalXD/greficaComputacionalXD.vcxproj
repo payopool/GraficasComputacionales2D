@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\core\CShape.h" />
     <ClInclude Include="include\core\Window.h" />
     <ClInclude Include="include\Prerequisitos.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\core\CShape.cpp" />
     <ClCompile Include="source\core\Window.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>

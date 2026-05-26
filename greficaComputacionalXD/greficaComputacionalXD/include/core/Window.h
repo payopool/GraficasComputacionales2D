@@ -1,3 +1,4 @@
+#pragma once
 #include "Prerequisitos.h"
 class Window {
 public:
