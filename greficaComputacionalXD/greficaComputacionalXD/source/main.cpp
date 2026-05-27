@@ -2,20 +2,17 @@
 #include "core/Window.h"
 #include "core/CShape.h" // Cuidado con las mayúsculas en el nombre del archivo
 
-Window* g_window = nullptr;
+std::unique_ptr<Window> g_window = nullptr; // Puntero global para la ventana
 CShape shape(ShapeType::CIRCLE); // Creamos tu figura tipo círculo
 
-void destroy() {
-    SAFE_PTR_RELEASE(g_window);
-}
+
 
 int main()
 {
-    // 1. Crear la ventana
-    g_window = new Window(800, 600, "My window");
+    
+	g_window = std::make_unique<Window>(800, 600, "window");
 
-    // 2. Cambiar el color de la figura correctamente
-    // Obtenemos el puntero de SFML con getShape() y le asignamos el color
+   
     if (shape.getShape() != nullptr) {
         shape.getShape()->setFillColor(sf::Color(100, 250, 50));
     }
@@ -42,6 +39,6 @@ int main()
     }
 
     // Limpieza de memoria al cerrar
-    destroy();
+ 
     return 0;
 }
