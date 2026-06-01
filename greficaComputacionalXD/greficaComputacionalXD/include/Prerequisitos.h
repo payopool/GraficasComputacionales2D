@@ -8,6 +8,8 @@
 #include <fstream>
 #include <unordered_map>
 #include <memory>
+#include <cstdint>
+#include <limits>
 
 // third parties
 #include <SFML/Graphics.hpp>

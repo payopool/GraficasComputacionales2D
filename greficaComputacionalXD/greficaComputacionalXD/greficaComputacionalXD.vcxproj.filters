@@ -19,6 +19,9 @@
     <Filter Include="Archivos de recursos\core">
       <UniqueIdentifier>{12929afa-b7b2-496a-b0eb-2981ecb5dec7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de encabezado\ECS">
+      <UniqueIdentifier>{da827a63-6ebe-4b58-9e8f-843b71313108}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Prerequisitos.h">
@@ -29,6 +32,12 @@
     </ClInclude>
     <ClInclude Include="include\core\CShape.h">
       <Filter>Archivos de encabezado\core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Types.h">
+      <Filter>Archivos de encabezado\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\SparceSet.h">
+      <Filter>Archivos de encabezado\ECS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
