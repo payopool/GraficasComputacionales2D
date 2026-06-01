@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="include\core\CShape.h" />
     <ClInclude Include="include\core\Window.h" />
+    <ClInclude Include="include\ECS\ComponentPool.h" />
     <ClInclude Include="include\ECS\SparceSet.h" />
     <ClInclude Include="include\ECS\Types.h" />
     <ClInclude Include="include\Prerequisitos.h" />

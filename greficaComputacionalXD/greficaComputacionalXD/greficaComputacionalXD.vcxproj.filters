@@ -39,6 +39,9 @@
     <ClInclude Include="include\ECS\SparceSet.h">
       <Filter>Archivos de encabezado\ECS</Filter>
     </ClInclude>
+    <ClInclude Include="include\ECS\ComponentPool.h">
+      <Filter>Archivos de encabezado\ECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">

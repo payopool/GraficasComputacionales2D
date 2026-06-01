@@ -4,7 +4,7 @@
 namespace ECS {
     class SparceSet {
     public:
-        // Si no tienes un SparceSet.cpp, te recomiendo poner el constructor = default aquí.
+        
         SparceSet() = default;
         virtual ~SparceSet() = default;
 
@@ -60,7 +60,7 @@ namespace ECS {
             m_dense.push_back(entity);      
 
             return denseIdx;
-        } // CORREGIDO: Faltaba esta llave para cerrar la función
+        }
 
     protected:
         static constexpr EntityIndex INVALID = std::numeric_limits<EntityIndex>::max();
