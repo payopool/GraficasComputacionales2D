@@ -10,6 +10,9 @@
 #include <memory>
 #include <cstdint>
 #include <limits>
+#include <tuple>
+#include <cstddef>
+#include <queue>
 
 // third parties
 #include <SFML/Graphics.hpp>
