@@ -14,7 +14,7 @@ int main()
 
    
     if (shape.getShape() != nullptr) {
-        shape.getShape()->setFillColor(sf::Color(100, 250, 50));
+        shape.getShape()->setFillColor(sf::Color::Magenta);
     }
 
     // Bucle principal del juego

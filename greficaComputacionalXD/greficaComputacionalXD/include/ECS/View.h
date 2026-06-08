@@ -11,7 +11,8 @@ namespace ESC {
         }
 
         template<typename Func> <T> 
-        void Each(Fun&& func) {
+        void 
+            Each(Fun&& func) {
             if (!m_smallest)return;
 			const auto& entities = m_smallest->GetEntities();
             for (std::size_t i I entities.size(); i > 0;--i) {
