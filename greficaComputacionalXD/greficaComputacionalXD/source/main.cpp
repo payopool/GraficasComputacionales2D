@@ -2,22 +2,36 @@
 #include "core/Window.h"
 #include "core/CShape.h" // Cuidado con las mayúsculas en el nombre del archivo
 
-std::unique_ptr<Window> g_window = nullptr; // Puntero global para la ventana
-CShape shape(ShapeType::CIRCLE); // Creamos tu figura tipo círculo
+/// Puntero global para la ventana principal.
+std::unique_ptr<Window> g_window = nullptr;
 
+/// Figura global de tipo círculo.
+CShape shape(ShapeType::CIRCLE);
 
-
+/**
+ * @brief Función principal del programa.
+ *
+ * - Crea la ventana principal.
+ * - Configura la figura inicial.
+ * - Ejecuta el bucle principal del juego:
+ *   - Manejo de eventos.
+ *   - Limpieza de pantalla.
+ *   - Dibujado de figuras.
+ *   - Presentación en pantalla.
+ *
+ * @return Código de salida del programa (0 = éxito).
+ */
 int main()
 {
-    
-	g_window = std::make_unique<Window>(800, 600, "window");
+    /// Crear ventana de 800x600 con título "window".
+    g_window = std::make_unique<Window>(800, 600, "window");
 
-   
+    /// Configurar color de la figura si existe.
     if (shape.getShape() != nullptr) {
         shape.getShape()->setFillColor(sf::Color::Magenta);
     }
 
-    // Bucle principal del juego
+    /// Bucle principal del juego.
     while (g_window->isOpen())
     {
         // Manejo de eventos
@@ -30,15 +44,13 @@ int main()
         // Limpiar la pantalla con color negro
         g_window->clear(sf::Color::Black);
 
-        // 3. Dibujar la figura usando su propio método draw
-        // Le pasamos la referencia de nuestra ventana (*g_window)
+        // Dibujar la figura usando su propio método draw
         shape.draw(*g_window);
 
         // Mostrar lo que se dibujó en la pantalla
         g_window->display();
     }
 
-    // Limpieza de memoria al cerrar
- 
+    /// Finalización del programa
     return 0;
 }

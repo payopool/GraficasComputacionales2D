@@ -1,19 +1,56 @@
-#pragma once
 namespace ECS {
-	class Registry;
-	class System {
-	public:
-		virtual ~System() = default;
-		// métodos de ciclo de vida do sistema
-		virtual void OnStart(Registry& /*registry*/) {}
-		// método de atualização do sistema, onde a lógica principal do sistema é executada
-		virtual void OnUpdate(Registry& registry, float deltaTime) = 0;
-		// método de limpeza do sistema, onde recursos alocados podem ser liberados
-			virtual void OnDestroy(Registry & /*registry*/) {}
-			//  se active  o desactive el sistema
-			void SetAEnable(bool enable) noexcept { m_enable = enable; }
-			[[nodiscard]] bool IsEnable() const noexcept { return m_enable; }
-	private:
-		bool m_enable = true; // por padrão, o sistema está habilitado
-	};
-}
+
+    class Registry; // Declaración adelantada
+
+    /**
+     * @brief Clase base para sistemas dentro del ECS.
+     *
+     * Define el ciclo de vida de un sistema:
+     * - OnStart: inicialización.
+     * - OnUpdate: lógica principal (obligatoria).
+     * - OnDestroy: limpieza de recursos.
+     *
+     * También permite habilitar o deshabilitar el sistema.
+     */
+    class System {
+    public:
+        /// Destructor virtual por defecto.
+        virtual ~System() = default;
+
+        /**
+         * @brief Método de inicialización del sistema.
+         * @param registry Referencia al registro ECS.
+         */
+        virtual void OnStart(Registry& /*registry*/) {}
+
+        /**
+         * @brief Método de actualización principal del sistema.
+         * @param registry Referencia al registro ECS.
+         * @param deltaTime Tiempo transcurrido desde el último frame.
+         */
+        virtual void OnUpdate(Registry& registry, float deltaTime) = 0;
+
+        /**
+         * @brief Método de limpieza del sistema.
+         * @param registry Referencia al registro ECS.
+         */
+        virtual void OnDestroy(Registry& /*registry*/) {}
+
+        /**
+         * @brief Activa o desactiva el sistema.
+         * @param enable true para habilitar, false para deshabilitar.
+         */
+        void SetEnable(bool enable) noexcept { m_enable = enable; }
+
+        /**
+         * @brief Verifica si el sistema está habilitado.
+         * @return true si está habilitado, false en caso contrario.
+         */
+        [[nodiscard]] bool IsEnable() const noexcept { return m_enable; }
+
+    private:
+        /// Estado del sistema (por defecto habilitado).
+        bool m_enable = true;
+    };
+
+} // namespace ECS

@@ -5,175 +5,181 @@
 #include "System.h"
 
 namespace ECS {
+
+    /**
+     * @brief Registro principal del ECS.
+     *
+     * Gestiona la creación y destrucción de entidades, así como la
+     * administración de componentes y sistemas.
+     */
     class Registry {
     public:
-        EntityID CreateEntity() {
-            EntityIndex idx;
-            if (!m_freeList.empty()) {
-                idx = m_freeList.front();
-                m_freeList.pop();
-            }
-            else {
-                idx = static_cast<EntityIndex>(m_entities.size());
-                m_entities.push_back(0); // placeholder para la versión
-                m_versions.push_back(0); // versión inicial
-            }
-            EntityID id = MakeEntityID(idx, m_versions[idx]);
-            m_entities[idx] = id;
-            return id;
-        }
+        /**
+         * @brief Crea una nueva entidad.
+         * @return ID de la entidad creada.
+         */
+        EntityID CreateEntity();
 
-        void DestroyEntity(EntityID entity) {
-            assert(IsAlive(entity) && "destroyEntity: entidad destruida o invalida");
+        /**
+         * @brief Destruye una entidad y elimina sus componentes.
+         * @param entity ID de la entidad a destruir.
+         */
+        void DestroyEntity(EntityID entity);
 
-            for (auto& [typeID, pool] : m_componentPools) {
-                if (pool) pool->RemoveEntity(entity);
-            }
+        /**
+         * @brief Verifica si una entidad está viva.
+         * @param entity ID de la entidad.
+         * @return true si la entidad está activa, false en caso contrario.
+         */
+        [[nodiscard]] bool IsAlive(EntityID entity) const noexcept;
 
-            const EntityIndex idx = GetEntityIndex(entity);
-            ++m_versions[idx];
-            m_freeList.push(idx);
-        }
+        /**
+         * @brief Obtiene el número de entidades activas.
+         * @return Cantidad de entidades.
+         */
+        [[nodiscard]] std::size_t EntityCount() const noexcept;
 
-        [[nodiscard]] bool IsAlive(EntityID entity) const noexcept {
-            const EntityIndex idx = GetEntityIndex(entity);
-            return idx < m_entities.size() && m_entities[idx] == entity;
-        }
+        /**
+         * @brief Devuelve todas las entidades activas.
+         * @return Referencia constante al vector de entidades.
+         */
+        [[nodiscard]] const std::vector<EntityID>& GetEntities() const noexcept;
 
-        [[nodiscard]] std::size_t EntityCount() const noexcept {
-            return m_entities.size() - m_freeList.size();
-        }
-
-        [[nodiscard]] const std::vector<EntityID>& GetEntities() const noexcept {
-            return m_entities;
-        }
-
+        /**
+         * @brief Añade un componente a una entidad.
+         * @tparam T Tipo de componente.
+         * @param entity ID de la entidad.
+         * @param args Argumentos para construir el componente.
+         * @return Referencia al componente creado.
+         */
         template<typename T, typename... Args>
-        T& AddComponent(EntityID entity, Args&&... args) {
-            assert(IsAlive(entity) && "addComponent: entidad destruida o invalida");
-            return GetOrCreatePool<T>()->Add(entity, std::forward<Args>(args)...);
-        }
+        T& AddComponent(EntityID entity, Args&&... args);
 
+        /**
+         * @brief Elimina un componente de una entidad.
+         * @tparam T Tipo de componente.
+         * @param entity ID de la entidad.
+         */
         template<typename T>
-        void RemoveComponent(EntityID entity) {
-            if (auto* pool = GetPool<T>())
-                pool->Remove(entity);
-        }
+        void RemoveComponent(EntityID entity);
 
+        /**
+         * @brief Establece un componente en una entidad.
+         * @tparam T Tipo de componente.
+         * @param entity ID de la entidad.
+         * @param value Valor del componente.
+         * @return Referencia al componente.
+         */
         template<typename T>
-        T& SetComponent(EntityID entity, T value) {
-            assert(IsAlive(entity) && "setComponent: entidad destruida o invalida");
-            auto* pool = GetOrCreatePool<T>();
-            if (pool->Contains(entity)) {
-                pool->Get(entity) = std::move(value);
-                return pool->Get(entity);
-            }
-            return pool->Add(entity, std::move(value));
-        }
+        T& SetComponent(EntityID entity, T value);
 
+        /**
+         * @brief Verifica si una entidad tiene un componente.
+         * @tparam T Tipo de componente.
+         * @param entity ID de la entidad.
+         * @return true si la entidad tiene el componente.
+         */
         template<typename T>
-        [[nodiscard]] bool HasComponent(EntityID entity) const noexcept {
-            const auto* pool = GetPoolConst<T>();
-            return pool && pool->Contains(entity);
-        }
+        [[nodiscard]] bool HasComponent(EntityID entity) const noexcept;
 
+        /**
+         * @brief Obtiene un componente de una entidad.
+         * @tparam T Tipo de componente.
+         * @param entity ID de la entidad.
+         * @return Referencia al componente.
+         */
         template<typename T>
-        [[nodiscard]] T& GetComponent(EntityID entity) {
-            assert(IsAlive(entity));
-            auto* pool = GetPool<T>();
-            assert(pool && pool->Contains(entity) && "getComponent: la entidad no tiene el componente");
-            return pool->Get(entity);
-        }
+        [[nodiscard]] T& GetComponent(EntityID entity);
 
+        /**
+         * @brief Obtiene un componente de una entidad (const).
+         * @tparam T Tipo de componente.
+         * @param entity ID de la entidad.
+         * @return Referencia constante al componente.
+         */
         template<typename T>
-        [[nodiscard]] const T& GetComponent(EntityID entity) const {
-            assert(IsAlive(entity));
-            const auto* pool = GetPoolConst<T>();
-            assert(pool && pool->Contains(entity) && "getComponent: la entidad no tiene el componente");
-            return pool->Get(entity);
-        }
+        [[nodiscard]] const T& GetComponent(EntityID entity) const;
 
+        /**
+         * @brief Intenta obtener un componente de una entidad.
+         * @tparam T Tipo de componente.
+         * @param entity ID de la entidad.
+         * @return Puntero al componente o nullptr si no existe.
+         */
         template<typename T>
-        [[nodiscard]] T* TryGetComponent(EntityID entity) noexcept {
-            auto* pool = GetPool<T>();
-            return pool ? pool->TryGet(entity) : nullptr;
-        }
+        [[nodiscard]] T* TryGetComponent(EntityID entity) noexcept;
 
+        /**
+         * @brief Añade un sistema al registro.
+         * @tparam T Tipo de sistema (debe derivar de System).
+         * @param args Argumentos para construir el sistema.
+         * @return Referencia al sistema creado.
+         */
         template<typename T, typename... Args>
-        T& AddSystem(Args&&... args) {
-            static_assert(std::is_base_of_v<System, T>, "T debe derivar ECS::System");
-            auto system = std::make_unique<T>(std::forward<Args>(args)...);
-            T& ref = *system;
-            system->OnStart(*this);
-            m_systems.push_back(std::move(system));
-            return ref;
-        }
+        T& AddSystem(Args&&... args);
 
-        void UpdateSystems(float deltaTime) {
-            for (auto& system : m_systems)
-                if (system->IsEnable())
-                    system->OnUpdate(*this, deltaTime);
-        }
+        /**
+         * @brief Actualiza todos los sistemas habilitados.
+         * @param deltaTime Tiempo transcurrido desde el último frame.
+         */
+        void UpdateSystems(float deltaTime);
 
-        void RemoveAllSystems() {
-            for (auto& system : m_systems)
-                system->OnDestroy(*this);
-            m_systems.clear();
-        }
+        /**
+         * @brief Elimina todos los sistemas.
+         */
+        void RemoveAllSystems();
 
-        void Clear() {
-            RemoveAllSystems();
-            for (auto& [typeID, pool] : m_componentPools)
-                pool->Clear();
-            m_entities.clear();
-            m_versions.clear();
-            while (!m_freeList.empty()) m_freeList.pop();
-        }
+        /**
+         * @brief Limpia todas las entidades, componentes y sistemas.
+         */
+        void Clear();
 
+        /**
+         * @brief Devuelve todos los pools de componentes.
+         * @return Mapa de pools de componentes.
+         */
         [[nodiscard]] const std::unordered_map<ComponentTypeID, std::unique_ptr<IComponentPool>>&
-            GetPools() const noexcept { return m_componentPools; }
+            GetPools() const noexcept;
 
     private:
+        /**
+         * @brief Obtiene o crea un pool de componentes.
+         * @tparam T Tipo de componente.
+         * @return Puntero al pool.
+         */
         template<typename T>
-        componentPool<T>* GetOrCreatePool() {
-            const ComponentTypeID typeID = GetComponentTypeID<T>();
-            auto it = m_componentPools.find(typeID);
-            if (it == m_componentPools.end()) {
-                auto [newIt, ok] = m_componentPools.emplace(
-                    typeID, std::make_unique<ComponentPool<T>>());
-                it = newIt;
-            }
-            return static_cast<ComponentPool<T>*>(it->second.get());
-        }
+        componentPool<T>* GetOrCreatePool();
 
+        /**
+         * @brief Obtiene un pool de componentes.
+         * @tparam T Tipo de componente.
+         * @return Puntero al pool o nullptr si no existe.
+         */
         template<typename T>
-        componentPool<T>* GetPool() noexcept {
-            const ComponentTypeID typeID = GetComponentTypeID<T>();
-            auto it = m_componentPools.find(typeID);
-            return (it != m_componentPools.end())
-                ? static_cast<ComponentPool<T>*>(it->second.get())
-                : nullptr;
-        }
+        componentPool<T>* GetPool() noexcept;
 
+        /**
+         * @brief Obtiene un pool de componentes (const).
+         * @tparam T Tipo de componente.
+         * @return Puntero constante al pool o nullptr si no existe.
+         */
         template<typename T>
-        const componentPool<T>* GetPoolConst() const noexcept {
-            const ComponentTypeID typeID = GetComponentTypeID<T>();
-            auto it = m_componentPools.find(typeID);
-            return (it != m_componentPools.end())
-                ? static_cast<const ComponentPool<T>*>(it->second.get())
-                : nullptr;
-        }
+        const componentPool<T>* GetPoolConst() const noexcept;
 
     private:
-        // entidades 
+        /// Array de entidades activas.
         std::vector<EntityID> m_entities;
+
+        /// Array de versiones de entidades.
         std::vector<EntityVersion> m_versions;
+
+        /// Lista de índices libres para reutilizar.
         std::queue<EntityIndex> m_freeList;
 
-        // componentes
+        /// Pools de componentes.
         std::unordered_map<ComponentTypeID, std::unique_ptr<IComponentPool>> m_componentPools;
 
-        // sistemas
+        /// Sistemas registrados.
         std::vector<std::unique_ptr<System>> m_systems;
     };
 }
