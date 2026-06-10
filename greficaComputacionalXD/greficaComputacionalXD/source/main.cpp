@@ -6,7 +6,7 @@
 std::unique_ptr<Window> g_window = nullptr;
 
 /// Figura global de tipo círculo.
-CShape shape(ShapeType::CIRCLE);
+CShape shape(ShapeType::TRINAGLE);
 
 /**
  * @brief Función principal del programa.
