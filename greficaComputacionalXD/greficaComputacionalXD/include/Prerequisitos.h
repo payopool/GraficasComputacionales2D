@@ -64,7 +64,7 @@ enum ShapeType {
     EMPTY = 0, ///< Sin figura
     CIRCLE = 1, ///< Círculo
     RECTANGLE = 2, ///< Rectángulo
-    TRINAGLE = 3, ///< Triángulo (typo corregible si lo deseas)
+    TRINAGLE = 3, ///< Triángulo 
     POLYGON = 4, ///< Polígono
     SQUARE = 5  ///< Cuadrado
 };
