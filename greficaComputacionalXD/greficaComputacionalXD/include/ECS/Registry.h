@@ -110,6 +110,27 @@ namespace ECS {
         [[nodiscard]] T* TryGetComponent(EntityID entity) noexcept;
 
         /**
+         * @brief Crea una vista sobre entidades que poseen ciertos componentes.
+         *
+         * Permite iterar sobre todas las entidades que tengan los componentes
+         * especificados en la plantilla.
+         *
+         * @tparam Components Lista de tipos de componentes.
+         * @return Vista que contiene las entidades con dichos componentes.
+         *
+         * @code
+         * auto view = registry.GetView<Transform, Render>();
+         * for (auto entity : view) {
+         *     // trabajar con Transform y Render
+         * }
+         * @endcode
+         */
+        template<typename... Components>
+        [[nodiscard]] View<Components...> GetView() {
+            return View<Components...>(GetOrCreatePool<Components>()...);
+        }
+
+        /**
          * @brief Añade un sistema al registro.
          * @tparam T Tipo de sistema (debe derivar de System).
          * @param args Argumentos para construir el sistema.
@@ -182,4 +203,6 @@ namespace ECS {
         /// Sistemas registrados.
         std::vector<std::unique_ptr<System>> m_systems;
     };
-}
+
+} // namespace ECS
+

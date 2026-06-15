@@ -1,12 +1,14 @@
 #include "Prerequisitos.h"
 #include "core/Window.h"
-#include "core/CShape.h" // Cuidado con las mayúsculas en el nombre del archivo
+#include "core/CShape.h" 
+
+
 
 /// Puntero global para la ventana principal.
 std::unique_ptr<Window> g_window = nullptr;
 
 /// Figura global de tipo círculo.
-CShape shape(ShapeType::TRINAGLE);
+CShape shape(ShapeType::RECTANGLE);
 
 /**
  * @brief Función principal del programa.

@@ -1,13 +1,15 @@
 #pragma once
 #include "ECS/ComponentPool.h"
 
-namespace ESC {
+namespace ECS {
 
     /**
      * @brief Clase View para iterar sobre entidades que poseen un conjunto de componentes.
      *
      * Permite recorrer entidades y aplicar funciones sobre ellas y sus componentes,
      * utilizando el pool más pequeño como referencia para optimizar la iteración.
+     *
+     * @tparam Components Lista de tipos de componentes que la vista manejará.
      */
     template<typename... Components>
     class View {
@@ -112,4 +114,5 @@ namespace ESC {
         /// Pool más pequeño usado como referencia.
         const SparceSet* m_smallest = nullptr;
     };
-}
+
+} // namespace ECS

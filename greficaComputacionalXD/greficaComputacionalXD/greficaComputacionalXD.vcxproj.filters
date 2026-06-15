@@ -22,6 +22,12 @@
     <Filter Include="Archivos de encabezado\ECS">
       <UniqueIdentifier>{da827a63-6ebe-4b58-9e8f-843b71313108}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de encabezado\ECS\Components">
+      <UniqueIdentifier>{fe31f4a2-3547-45f5-853d-b9fe37e2459a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\ECS\Systems">
+      <UniqueIdentifier>{e617bfb7-6055-41d6-bffc-a879abeb216b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Prerequisitos.h">
@@ -50,6 +56,15 @@
     </ClInclude>
     <ClInclude Include="include\ECS\System.h">
       <Filter>Archivos de encabezado\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Component\Transform.h">
+      <Filter>Archivos de encabezado\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Component\Render.h">
+      <Filter>Archivos de encabezado\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Systems\Rendersystem.h">
+      <Filter>Archivos de encabezado\ECS\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
