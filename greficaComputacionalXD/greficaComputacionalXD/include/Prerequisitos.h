@@ -15,7 +15,8 @@
 #include <tuple>
 #include <cstddef>
 #include <queue>
-
+#include <imgui.h>
+#include <imgui-SFML.h>
 // Librería externa: SFML
 #include <SFML/Graphics.hpp>
 

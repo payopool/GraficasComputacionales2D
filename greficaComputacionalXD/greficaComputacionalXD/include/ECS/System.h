@@ -15,7 +15,7 @@ namespace ECS {
     class System {
     public:
         /// Destructor virtual por defecto.
-        virtual ~System() = default;
+      
 
         /**
          * @brief Método de inicialización del sistema.

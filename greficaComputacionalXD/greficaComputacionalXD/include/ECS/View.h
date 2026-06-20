@@ -18,7 +18,7 @@ namespace ECS {
          * @brief Constructor que recibe referencias a pools de componentes.
          * @param pools Pools de componentes a incluir en la vista.
          */
-        explicit View(ComponentPool<Components>&... pools) noexcept
+        explicit View(componentPool<Components>&... pools) noexcept
             : m_pool(&pools...) {
             FindSmallest();
         }
@@ -109,7 +109,7 @@ namespace ECS {
 
     private:
         /// Tupla de punteros a pools de componentes.
-        std::tuple<ComponentPool<Components>*...> m_pool;
+        std::tuple<componentPool<Components>*...> m_pool;
 
         /// Pool más pequeño usado como referencia.
         const SparceSet* m_smallest = nullptr;
