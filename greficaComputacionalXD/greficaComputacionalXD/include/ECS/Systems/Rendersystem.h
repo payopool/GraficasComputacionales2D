@@ -43,6 +43,7 @@ namespace ECS {
                     r.shape->setFillColor(r.fillColor);
                     // Dibujar en la ventana
                     m_window.draw(*r.shape);
+
                 }
             );
         }

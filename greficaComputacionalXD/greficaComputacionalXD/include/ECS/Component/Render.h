@@ -12,7 +12,7 @@ namespace ECS {
     struct Render {
         /// Figura SFML asociada a la entidad.
         std::shared_ptr<sf::Shape> shape;
-
+        sf::Color color;
         /// Color de relleno de la figura.
         sf::Color fillColor{ sf::Color::White };
 
