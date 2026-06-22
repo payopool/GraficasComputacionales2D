@@ -35,13 +35,27 @@ int main()
 
     registry.AddComponent<ECS::Transform>(circle, sf::Vector2f{ 400.f, 300.f });
 
-    registry.AddComponent<ECS::Render>(circle, ECS::Render::Make(CIRCLE, sf::Color(100, 250, 50)));
+    registry.AddComponent<ECS::Render>(circle, ECS::Render::Make(CIRCLE, sf::Color::Magenta));
 
     ECS::EntityID tri = registry.CreateEntity();
 
     registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 200.f, 200.f }, 45.f);
 
-    registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRINAGLE, sf::Color::Cyan));
+    registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRINAGLE, sf::Color::Yellow));
+
+    ECS::EntityID tri1 = registry.CreateEntity();
+
+    registry.AddComponent<ECS::Transform>(tri1, sf::Vector2f{ 200.f, 200.f }, 45.f);
+
+    registry.AddComponent<ECS::Render>(tri1, ECS::Render::Make(TRINAGLE, sf::Color::Yellow));
+
+    ECS::EntityID tri2 = registry.CreateEntity();
+
+    registry.AddComponent<ECS::Transform>(tri2, sf::Vector2f{ 200.f, 200.f }, 45.f);
+
+    registry.AddComponent<ECS::Render>(tri2, ECS::Render::Make(TRINAGLE, sf::Color::Yellow));
+
+
 
     while (g_window.isOpen()) {
         while (const std::optional event =
@@ -74,6 +88,33 @@ int main()
 
         ImGui::ShowDemoWindow(&showDemoWindow);
 
+        ImGui::Begin("Entity Controls");
+
+        if (auto* t = registry.TryGetComponent<ECS::Transform>(circle)) {
+            ImGui::Text("Circle");
+            ImGui::SliderFloat2("Position##circle", &t->position.x, 0.0f, 800.0f);
+        }
+
+        if (auto* t = registry.TryGetComponent<ECS::Transform>(tri)) {
+            ImGui::Text("Triangle");
+            ImGui::SliderFloat2("Position##tri", &t->position.x, 0.0f, 800.0f);
+            ImGui::SliderFloat("Rotation##tri", &t->rotation, 0.0f, 360.0f);
+        }
+        if (auto* t = registry.TryGetComponent<ECS::Transform>(tri1)) {
+            ImGui::Text("Tri1");
+            ImGui::SliderFloat2("Position##tri1", &t->position.x, 0.0f, 800.0f);
+            ImGui::SliderFloat("Rotation##tri1", &t->rotation, 0.0f, 360.0f);
+        }
+        if (auto* t = registry.TryGetComponent<ECS::Transform>(tri2)) {
+            ImGui::Text("Tri2");
+            ImGui::SliderFloat2("Position##tri2", &t->position.x, 0.0f, 800.0f);
+            ImGui::SliderFloat("Rotation##tri2", &t->rotation, 0.0f, 360.0f);
+        }
+
+        ImGui::End();
+
+
+
         // Limpiar la ventana.
         g_window.clear(sf::Color::Black);
 
@@ -85,6 +126,8 @@ int main()
 
         // Presentar el frame.
         g_window.display();
+       
+
     }
 
     destroy();
