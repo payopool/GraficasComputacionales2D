@@ -1,80 +1,93 @@
 #include "Prerequisitos.h"
-#include "core/Window.h"
-#include "core/CShape.h"
-#include "ECS/component/Transform.h"
-#include "ECS/component/Render.h"
-#include "ECS/Systems/Rendersystem.h"
+#include "Core/Window.h"
+#include "Core/CShape.h"
+#include "ECS/Registry.h"
+#include "ECS/Component/Transform.h"
+#include "ECS/Component/Render.h"
+#include "ECS/Systems/RenderSystem.h"
 
+Window g_window(Window(800, 600, "Labrid Engine"));
+ECS::Registry registry;
 
-/// Puntero global para la ventana principal.
-std::unique_ptr<Window> g_window = nullptr;
-
-/// Figura global de tipo rectángulo.
-CShape shape(ShapeType::RECTANGLE);
+void destroy()
+{
+    ImGui::SFML::Shutdown();
+}
 
 int main()
 {
-    /// Crear ventana principal
-    g_window = std::make_unique<Window>(800, 600, "window");
+    registry.AddSystem<ECS::RenderSystem>(g_window);
 
-    /// Inicializar ImGui
-    if (!ImGui::SFML::Init(*g_window->m_window))
+    // m_window es un puntero a sf::RenderWindow.
+    if (!ImGui::SFML::Init(*g_window.m_window))
     {
         return -1;
     }
 
-    /// Reloj para ImGui
+    // Habilitar docking.
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
     sf::Clock deltaClock;
+    bool showDemoWindow = true;
 
-    /// Configurar color de la figura
-    if (shape.getShape() != nullptr)
-    {
-        shape.getShape()->setFillColor(sf::Color::Magenta);
-    }
+    ECS::EntityID circle = registry.CreateEntity();
 
-    /// Bucle principal
-    while (g_window->isOpen())
-    {
-        /// Procesar eventos
-        while (const std::optional event = g_window->m_window->pollEvent())
-        {
-            ImGui::SFML::ProcessEvent(*g_window->m_window, *event);
+    registry.AddComponent<ECS::Transform>(circle, sf::Vector2f{ 400.f, 300.f });
 
-            if (event->is<sf::Event::Closed>())
-            {
-                g_window->close();
+    registry.AddComponent<ECS::Render>(circle, ECS::Render::Make(CIRCLE, sf::Color(100, 250, 50)));
+
+    ECS::EntityID tri = registry.CreateEntity();
+
+    registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 200.f, 200.f }, 45.f);
+
+    registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRINAGLE, sf::Color::Cyan));
+
+    while (g_window.isOpen()) {
+        while (const std::optional event =
+            g_window.m_window->pollEvent()) {
+            // ImGui debe recibir todos los eventos de SFML.
+            ImGui::SFML::ProcessEvent(
+                *g_window.m_window,
+                *event
+            );
+
+            if (event->is<sf::Event::Closed>()) {
+                g_window.close();
             }
         }
 
-        /// Actualizar ImGui
-        ImGui::SFML::Update(*g_window->m_window, deltaClock.restart());
+        const sf::Time elapsedTime = deltaClock.restart();
+        const float dt = elapsedTime.asSeconds();
 
-        /// Ventana de prueba ImGui
-        ImGui::Begin("Prueba ImGui");
+        // Iniciar el frame de ImGui.
+        ImGui::SFML::Update(*g_window.m_window, elapsedTime);
 
-        ImGui::Text("Hola Mundo");
+        ImGuiDockNodeFlags dockspaceFlags =
+            ImGuiDockNodeFlags_PassthruCentralNode;
 
-        ImGui::Separator();
+        ImGui::DockSpaceOverViewport(
+            0,
+            ImGui::GetMainViewport(),
+            dockspaceFlags
+        );
 
-        ImGui::Text("SFML + ImGui funcionando correctamente");
+        ImGui::ShowDemoWindow(&showDemoWindow);
 
-        ImGui::End();
+        // Limpiar la ventana.
+        g_window.clear(sf::Color::Black);
 
-        /// Limpiar pantalla
-        g_window->clear(sf::Color::Black);
+        // Renderizar los elementos de tu ECS.
+        registry.UpdateSystems(dt);
 
-        /// Dibujar figura
-        shape.draw(*g_window);
+        // Renderizar ImGui después de la escena.
+        ImGui::SFML::Render(*g_window.m_window);
 
-        /// Dibujar interfaz ImGui
-        ImGui::SFML::Render(*g_window->m_window);
-
-        /// Mostrar contenido
-        g_window->display();
+        // Presentar el frame.
+        g_window.display();
     }
 
-    /// Cerrar ImGui
-    ImGui::SFML::Shutdown();
+    destroy();
 
     return 0;
 }

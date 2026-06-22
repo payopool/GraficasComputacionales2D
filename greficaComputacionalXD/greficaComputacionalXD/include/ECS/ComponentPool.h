@@ -36,7 +36,7 @@ namespace ECS {
      * asociados a entidades dentro del ECS.
      */
     template<typename T>
-    class componentPool final : public IComponentPool {
+    class ComponentPool final : public IComponentPool {
     public:
         /**
          * @brief Añade un componente a una entidad.
