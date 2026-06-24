@@ -5,8 +5,9 @@
 #include "ECS/Component/Transform.h"
 #include "ECS/Component/Render.h"
 #include "ECS/Systems/RenderSystem.h"
+#include "ECS/Systems/Uisystem.h"   // <- tu sistema UI
 
-Window g_window(Window(800, 600, "Labrid Engine"));
+Window g_window(Window(800, 600, "._."));
 ECS::Registry registry;
 
 void destroy()
@@ -16,15 +17,13 @@ void destroy()
 
 int main()
 {
+    // Registrar sistemas
     registry.AddSystem<ECS::RenderSystem>(g_window);
+    registry.AddSystem<ECS::Uisystem>();   // <- ahora el inspector está aquí
 
-    // m_window es un puntero a sf::RenderWindow.
     if (!ImGui::SFML::Init(*g_window.m_window))
-    {
         return -1;
-    }
 
-    // Habilitar docking.
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -51,16 +50,13 @@ int main()
     while (g_window.isOpen()) {
         while (const std::optional event = g_window.m_window->pollEvent()) {
             ImGui::SFML::ProcessEvent(*g_window.m_window, *event);
-
-            if (event->is<sf::Event::Closed>()) {
+            if (event->is<sf::Event::Closed>())
                 g_window.close();
-            }
         }
 
         const sf::Time elapsedTime = deltaClock.restart();
         const float dt = elapsedTime.asSeconds();
 
-        // Iniciar el frame de ImGui.
         ImGui::SFML::Update(*g_window.m_window, elapsedTime);
 
         ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
@@ -68,54 +64,17 @@ int main()
 
         ImGui::ShowDemoWindow(&showDemoWindow);
 
-        // Inspector de entidades
-        ImGui::Begin("Entity Controls");
-
-        auto drawInspector = [&](const char* name, ECS::EntityID id) {
-            if (auto* t = registry.TryGetComponent<ECS::Transform>(id)) {
-                auto* r = registry.TryGetComponent<ECS::Render>(id);
-                ImGui::Separator();
-                ImGui::Text("%s", name);
-                ImGui::SliderFloat2(std::string("Position##").append(name).c_str(), &t->position.x, 0.0f, 800.0f);
-                ImGui::SliderFloat(std::string("Rotation##").append(name).c_str(), &t->rotation, 0.0f, 360.0f);
-
-                if (r) {
-                    float color[3] = {
-                        r->fillColor.r / 255.0f,
-                        r->fillColor.g / 255.0f,
-                        r->fillColor.b / 255.0f
-                    };
-                    if (ImGui::ColorEdit3(std::string("Color##").append(name).c_str(), color)) {
-                        r->fillColor = sf::Color(
-                            static_cast<uint8_t>(color[0] * 255),
-                            static_cast<uint8_t>(color[1] * 255),
-                            static_cast<uint8_t>(color[2] * 255)
-                        );
-                    }
-                }
-            }
-            };
-
-        drawInspector("Circle", circle);
-        drawInspector("Triangle", tri);
-        drawInspector("Tri1", tri1);
-        drawInspector("Tri2", tri2);
-
-        ImGui::End();
-
-        // Limpiar la ventana.
         g_window.clear(sf::Color::Black);
 
-        // Renderizar ECS.
+        // Aquí se ejecutan RenderSystem y Uisystem
         registry.UpdateSystems(dt);
 
-        // Renderizar ImGui después de la escena.
         ImGui::SFML::Render(*g_window.m_window);
-
-        // Presentar el frame.
         g_window.display();
     }
 
     destroy();
     return 0;
 }
+
+

@@ -72,6 +72,9 @@
     <ClInclude Include="include\ECS\Systems\Rendersystem.h">
       <Filter>Archivos de encabezado\ECS\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="include\ECS\Systems\UISystem.h">
+      <Filter>Archivos de encabezado\ECS\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">
