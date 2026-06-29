@@ -75,6 +75,12 @@
     <ClInclude Include="include\ECS\Systems\UISystem.h">
       <Filter>Archivos de encabezado\ECS\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="include\ECS\Component\Camera.h">
+      <Filter>Archivos de encabezado\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Systems\CameraSystem.h">
+      <Filter>Archivos de encabezado\ECS\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">

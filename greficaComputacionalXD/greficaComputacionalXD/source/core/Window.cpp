@@ -1,14 +1,5 @@
 #include "Core/Window.h"
 
-/**
- * @brief Constructor de la clase Window.
- *
- * Crea una ventana SFML con las dimensiones y título especificados.
- *
- * @param width  Ancho de la ventana.
- * @param height Alto de la ventana.
- * @param title  Título de la ventana.
- */
 Window::Window(int width, int height, const std::string& title)
 {
     m_window = new sf::RenderWindow(
@@ -18,6 +9,7 @@ Window::Window(int width, int height, const std::string& title)
 
     if (m_window) {
         m_window->setFramerateLimit(60);
+        m_view = m_window->getDefaultView();  
         MESSAGE("Window", "Window", "Window created successfully");
     }
     else {
@@ -25,24 +17,13 @@ Window::Window(int width, int height, const std::string& title)
     }
 }
 
-/**
- * @brief Destructor de la clase Window.
- *
- * Libera los recursos asociados a la ventana.
- */
 Window::~Window() {
     SAFE_PTR_RELEASE(m_window);
 }
 
-/**
- * @brief Verifica si la ventana está abierta.
- *
- * @return true si la ventana existe y está abierta, false en caso contrario.
- */
-bool Window::isOpen() const
-{
+bool Window::isOpen() const {
     if (m_window) {
-        return m_window && m_window->isOpen();
+        return m_window->isOpen();
     }
     else {
         ERROR("Window", "isOpen", "Window is null");
@@ -50,13 +31,15 @@ bool Window::isOpen() const
     }
 }
 
-/**
- * @brief Limpia la ventana con un color específico.
- *
- * @param color Color con el que se limpia la ventana.
- */
-void Window::clear(const sf::Color& color)
-{
+void Window::applyCameraView(const sf::Vector2f& position, float zoom) {
+    if (!m_window) return;
+    m_view.setCenter(position);
+    m_view.setSize(m_window->getDefaultView().getSize() * (1.f / zoom));
+    m_window->setView(m_view);
+}
+
+
+void Window::clear(const sf::Color& color) {
     if (m_window) {
         m_window->clear(color);
     }
@@ -65,14 +48,23 @@ void Window::clear(const sf::Color& color)
     }
 }
 
-/**
- * @brief Dibuja un objeto en la ventana.
- *
- * @param drawable Objeto SFML dibujable.
- * @param state    Estado de renderizado opcional.
- */
-void Window::draw(const sf::Drawable& drawable, const sf::RenderStates& state)
-{
+void Window::handleResize(const sf::Vector2u& size) {
+    if (!m_window) {
+        ERROR("Window", "handleResize", "Window is null");
+        return;
+    }
+
+    sf::Vector2f fSize(static_cast<float>(size.x),
+        static_cast<float>(size.y));
+
+    m_view.setSize(fSize);
+    m_view.setCenter(sf::Vector2f(fSize.x / 2.f, fSize.y / 2.f));
+    m_window->setView(m_view);
+
+    MESSAGE("Window", "handleResize", "Window resized successfully");
+}
+
+void Window::draw(const sf::Drawable& drawable, const sf::RenderStates& state) {
     if (m_window) {
         m_window->draw(drawable, state);
     }
@@ -81,11 +73,7 @@ void Window::draw(const sf::Drawable& drawable, const sf::RenderStates& state)
     }
 }
 
-/**
- * @brief Muestra en pantalla lo que se ha dibujado.
- */
-void Window::display()
-{
+void Window::display() {
     if (m_window) {
         m_window->display();
     }
@@ -94,23 +82,14 @@ void Window::display()
     }
 }
 
-/**
- * @brief Actualiza el tiempo delta para cálculos de frame.
- */
 void Window::render() {
     deltatime = clock.restart();
 }
 
-/**
- * @brief Destruye la ventana liberando recursos.
- */
 void Window::destroy() {
     SAFE_PTR_RELEASE(m_window);
 }
 
-/**
- * @brief Cierra la ventana.
- */
 void Window::close() {
     if (m_window) {
         m_window->close();
@@ -119,4 +98,3 @@ void Window::close() {
         ERROR("Window", "close", "Window is null");
     }
 }
-

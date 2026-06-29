@@ -57,6 +57,11 @@ public:
      */
     void close();
 
+    void handleResize(const sf::Vector2u& size);
+
+    void applyCameraView(const sf::Vector2f& position, float zoom);
+
+
     /**
      * @brief Actualiza el estado de la ventana (eventos, lógica, etc.).
      */
@@ -73,7 +78,7 @@ public:
     void destroy();
 
     /// Puntero a la ventana SFML.
-    sf::RenderWindow* m_window;
+    sf::RenderWindow* m_window = nullptr;
 
 private:
     /// Vista de la ventana (control de cámara/zoom).
