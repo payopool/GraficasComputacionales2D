@@ -16,6 +16,8 @@ namespace ECS {
         /// Color de relleno de la figura.
         sf::Color fillColor{ sf::Color::White };
 
+        std::shared_ptr<sf::Texture> texture;
+
         /// Indica si la entidad es visible en pantalla.
         bool visisble{ true };
 
@@ -36,7 +38,25 @@ namespace ECS {
             sf::Color color = sf::Color::White) noexcept
             : shape(std::move(s)), fillColor(color) {
         }
-
+        bool SetTexture(const std::string& path,bool resetRect = true
+        ){
+            if (!shape)return false;
+            auto tex = std::make_shared<sf::Texture>();
+            if (!tex->loadFromFile(path))return false;
+            texture = std::move(tex);
+            shape->setTexture(texture.get(), resetRect);
+            return true;
+        }
+        void SetTexture(std::shared_ptr<sf::Texture> tex, bool resetRect = true) {
+            if (!shape)return;
+            texture = std::move(tex);
+            shape->setTexture(texture ? texture.get() : nullptr, resetRect);
+		}
+        void ClearTexture(){
+            if (!shape)  shape->setTexture(nullptr);
+            texture.reset();
+           
+		}
         /**
          * Crea un componente Render a partir de un tipo de figura.
          *
@@ -44,8 +64,11 @@ namespace ECS {
          * color Color de relleno (por defecto blanco).
          *  Componente Render inicializado con la figura y color.
          */
-        [[nodiscard]] static Render Make(ShapeType type,
-            sf::Color color = sf::Color::White) {
+        [[nodiscard]] static Render Make(
+            ShapeType type,
+            sf::Color color = sf::Color::White,
+            const std::string& texturePath = ""
+        ) {
             std::shared_ptr<sf::Shape> s;
             switch (type) {
             case CIRCLE: {
@@ -73,9 +96,18 @@ namespace ECS {
             default:
                 break;
             }
+
+            Render render{ s, color };
+
+            if (!texturePath.empty()) {
+                render.SetTexture(texturePath);
+            }
+
             if (s) s->setFillColor(color);
-            return Render{ s, color };
+            return render;
         }
+
+
     };
 
 } // namespace ECS
