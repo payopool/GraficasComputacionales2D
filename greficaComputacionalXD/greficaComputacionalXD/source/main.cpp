@@ -82,20 +82,13 @@ int main()
     registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 200.f, 200.f }, 45.f);
     registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRINAGLE, sf::Color::Yellow));
 
-    ECS::EntityID tri1 = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(tri1, sf::Vector2f{ 300.f, 250.f }, 30.f);
-    registry.AddComponent<ECS::Render>(tri1, ECS::Render::Make(TRINAGLE, sf::Color::Cyan));
-
-    ECS::EntityID tri2 = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(tri2, sf::Vector2f{ 500.f, 350.f }, 60.f);
-    registry.AddComponent<ECS::Render>(tri2, ECS::Render::Make(TRINAGLE, sf::Color::Green));
 
     // Crear entidad cámara
     ECS::EntityID cameraEntity = registry.CreateEntity();
     registry.AddComponent<ECS::Transform>(cameraEntity, sf::Vector2f{ 400.f, 300.f });
     registry.AddComponent<ECS::Camera>(cameraEntity, ECS::Camera{
         true,              // activa
-        circle,            // sigue al círculo
+        tri,            // sigue al círculo
         2.0f,              // velocidad de seguimiento
         1.0f               // zoom inicial
         });
