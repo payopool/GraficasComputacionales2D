@@ -17,6 +17,7 @@
 #include <queue>
 #include <imgui.h>
 #include <imgui-SFML.h>
+#include <cmath>    
 // Librería externa: SFML
 #include <SFML/Graphics.hpp>
 

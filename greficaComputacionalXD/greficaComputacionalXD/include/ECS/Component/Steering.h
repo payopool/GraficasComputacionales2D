@@ -28,7 +28,7 @@ namespace ECS {
 
         Steering() = default;
 
-        SteeringType behaivor{ SteeringType::NONE };//tipo de comportamiento
+        SteeringType behavior{ SteeringType::NONE };//tipo de comportamiento
         sf::Vector2f target{ 0.f,0.f };// putno objetivo espacio 2d
         float speed{ 100.f };//velocidad base de movimiento
         float arriveRadius{ 50.f };//radio para desacelerar en arrive
