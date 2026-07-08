@@ -5,16 +5,40 @@
 #include "ECS/Component/Transform.h"
 #include "ECS/Component/Render.h"
 #include "ECS/Component/Camera.h"
+#include "ECS/Component/Steering.h"
 #include <imgui.h>
 
 namespace ECS {
+
+    /**
+     * Uisystem
+     * Sistema encargado de mostrar y editar componentes de entidades mediante ImGui.
+     *
+     * Este sistema renderiza dos paneles principales:
+     * - **Outliner**: lista todas las entidades disponibles y permite seleccionar una.
+     * - **Inspector**: muestra los componentes de la entidad seleccionada y permite modificarlos.
+     *
+     * Componentes soportados:
+     * - Transform: posición, rotación y escala.
+     * - Render: color de relleno.
+     * - Steering: comportamiento autónomo (Seek, Flee, Arrive) y parámetros asociados.
+     * - Camera: estado activo, zoom y velocidad de seguimiento.
+     */
     class Uisystem final : public System {
     public:
+        /// Constructor por defecto.
         Uisystem() = default;
 
-        
-
-
+        /**
+         * Actualiza la interfaz gráfica de usuario.
+         *
+         * Muestra el panel Outliner con todas las entidades y el panel Inspector
+         * con los componentes de la entidad seleccionada. Permite modificar valores
+         * en tiempo real mediante controles de ImGui.
+         *
+         * registry Referencia al registro ECS.
+         * deltaTime Tiempo transcurrido entre frames (no usado en este sistema).
+         */
         void OnUpdate(Registry& registry, float /*deltaTime*/) override {
             // Panel Outliner
             ImGui::Begin("Figures");
@@ -59,6 +83,28 @@ namespace ECS {
                     }
                 }
 
+                // Steering
+                if (auto* s = registry.TryGetComponent<Steering>(selectedEntity)) {
+                    if (ImGui::CollapsingHeader("Steering", ImGuiTreeNodeFlags_DefaultOpen)) {
+                        int behavior = static_cast<int>(s->behavior);
+                        const char* behaviors[] = { "None", "Seek", "Flee", "Arrive" };
+                        ImGui::Combo("Behavior", &behavior, behaviors, IM_ARRAYSIZE(behaviors));
+                        s->behavior = static_cast<SteeringType>(behavior);
+
+                        ImGui::SliderFloat2("Target", &s->target.x, 0.f, 800.f);
+                        ImGui::SliderFloat("Speed", &s->speed, 10.f, 300.f);
+                        ImGui::SliderFloat("Arrive Radius", &s->arriveRadius, 10.f, 200.f);
+
+                        // Ejemplo: si el comportamiento es SEEK, se puede vincular al círculo
+                        ECS::EntityID circleEntity = 0; // ID del círculo definido en main
+                        if (s->behavior == SteeringType::SEEK) {
+                            if (auto* circleTransform = registry.TryGetComponent<Transform>(circleEntity)) {
+                                s->target = circleTransform->position;
+                            }
+                        }
+                    }
+                }
+
                 // Camera
                 if (auto* c = registry.TryGetComponent<Camera>(selectedEntity)) {
                     if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -71,10 +117,9 @@ namespace ECS {
 
             ImGui::End();
         }
-   
-
 
     private:
-        EntityID selectedEntity = NULL_ENTITY; 
+        EntityID selectedEntity = NULL_ENTITY; ///< Entidad actualmente seleccionada en el Outliner.
     };
+
 }
