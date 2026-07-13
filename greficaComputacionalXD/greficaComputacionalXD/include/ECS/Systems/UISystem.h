@@ -87,7 +87,7 @@ namespace ECS {
                 if (auto* s = registry.TryGetComponent<Steering>(selectedEntity)) {
                     if (ImGui::CollapsingHeader("Steering", ImGuiTreeNodeFlags_DefaultOpen)) {
                         int behavior = static_cast<int>(s->behavior);
-                        const char* behaviors[] = { "None", "Seek", "Flee", "Arrive" };
+                        const char* behaviors[] = { "None", "Seek", "Flee", "Arrive", "Wander", "Pursuit", "Obstacle Avoidance" };
                         ImGui::Combo("Behavior", &behavior, behaviors, IM_ARRAYSIZE(behaviors));
                         s->behavior = static_cast<SteeringType>(behavior);
 

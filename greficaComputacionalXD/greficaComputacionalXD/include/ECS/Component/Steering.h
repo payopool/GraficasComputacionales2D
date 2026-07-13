@@ -9,12 +9,18 @@ namespace ECS {
      * SEEK La entidad se mueve hacia un objetivo.
      * FLEE  La entidad se aleja del objetivo.
      * ARRIVE La entidad se acerca al objetivo y desacelera al llegar.
+     * WANDER Movimiento aleatorio dentro de un área
+     * PURSUIT  Perseguir a otra entidad en movimiento
+     * OBSTACLE_AVOIDANCE Evitar colisiones con obstáculos
      */
     enum class SteeringType {
         NONE,
         SEEK,
         FLEE,
-        ARRIVE
+        ARRIVE,
+        WANDER,
+        PURSUIT,
+        OBSTACLE_AVOIDANCE
     };
 
         /**
@@ -32,6 +38,8 @@ namespace ECS {
         sf::Vector2f target{ 0.f,0.f };// putno objetivo espacio 2d
         float speed{ 100.f };//velocidad base de movimiento
         float arriveRadius{ 50.f };//radio para desacelerar en arrive
+        sf::Vector2f targetVelocity; ///< Velocidad del objetivo para cálculos de Pursuit
+
         
     };
   
