@@ -12,7 +12,7 @@ namespace ECS {
      * SteeringSystem
      * Sistema encargado de actualizar entidades con comportamiento Steering.
      *
-     * Este sistema aplica las reglas de SEEK, FLEE y ARRIVE sobre las entidades
+     * Este sistema aplica las reglas de SEEK, FLEE, ARRIVE WANDER etc. sobre las entidades
      * que poseen los componentes Transform y Steering.
      */
     class SteeringSystem final : public System {
