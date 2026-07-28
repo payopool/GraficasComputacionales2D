@@ -75,9 +75,11 @@ void destroy() {
 int main() {
     // Registrar sistemas ECS
     registry.AddSystem<ECS::RenderSystem>(g_window);
-    registry.AddSystem<ECS::Uisystem>();
+    registry.AddSystem<ECS::Uisystem>(g_window);   
     registry.AddSystem<ECS::CameraSystem>(g_window);
     registry.AddSystem<ECS::SteeringSystem>();
+
+
 
     if (!ImGui::SFML::Init(*g_window.m_window))
         return -1;

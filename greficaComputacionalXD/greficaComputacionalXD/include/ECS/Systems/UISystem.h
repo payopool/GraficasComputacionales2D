@@ -6,39 +6,17 @@
 #include "ECS/Component/Render.h"
 #include "ECS/Component/Camera.h"
 #include "ECS/Component/Steering.h"
+#include "Core/Window.h"
 #include <imgui.h>
 
 namespace ECS {
 
-    /**
-     * Uisystem
-     * Sistema encargado de mostrar y editar componentes de entidades mediante ImGui.
-     *
-     * Este sistema renderiza dos paneles principales:
-     * - **Outliner**: lista todas las entidades disponibles y permite seleccionar una.
-     * - **Inspector**: muestra los componentes de la entidad seleccionada y permite modificarlos.
-     *
-     * Componentes soportados:
-     * - Transform: posición, rotación y escala.
-     * - Render: color de relleno.
-     * - Steering: comportamiento autónomo (Seek, Flee, Arrive) y parámetros asociados.
-     * - Camera: estado activo, zoom y velocidad de seguimiento.
-     */
     class Uisystem final : public System {
     public:
-        /// Constructor por defecto.
-        Uisystem() = default;
+        explicit Uisystem(Window& window) noexcept
+            : m_window(window) {
+        }
 
-        /**
-         * Actualiza la interfaz gráfica de usuario.
-         *
-         * Muestra el panel Outliner con todas las entidades y el panel Inspector
-         * con los componentes de la entidad seleccionada. Permite modificar valores
-         * en tiempo real mediante controles de ImGui.
-         *
-         * registry Referencia al registro ECS.
-         * deltaTime Tiempo transcurrido entre frames (no usado en este sistema).
-         */
         void OnUpdate(Registry& registry, float /*deltaTime*/) override {
             // Panel Outliner
             ImGui::Begin("Figures");
@@ -95,8 +73,7 @@ namespace ECS {
                         ImGui::SliderFloat("Speed", &s->speed, 10.f, 300.f);
                         ImGui::SliderFloat("Arrive Radius", &s->arriveRadius, 10.f, 200.f);
 
-                        // Ejemplo: si el comportamiento es SEEK, se puede vincular al círculo
-                        ECS::EntityID circleEntity = 0; // ID del círculo definido en main
+                        ECS::EntityID circleEntity = 0;
                         if (s->behavior == SteeringType::SEEK) {
                             if (auto* circleTransform = registry.TryGetComponent<Transform>(circleEntity)) {
                                 s->target = circleTransform->position;
@@ -116,10 +93,40 @@ namespace ECS {
             }
 
             ImGui::End();
+
+            // Panel de Opciones Globales de Renderizado
+            ImGui::Begin("Render Options");
+
+            // Slider para MSAA
+            static int msaaLevel = 0;
+            ImGui::SliderInt("MSAA Level", &msaaLevel, 0, 16);
+            if (ImGui::Button("Aplicar MSAA")) {
+                m_window.setMSAALevel(msaaLevel);
+            }
+
+            // Toggle de VSync
+            static bool vsync = true;
+            if (ImGui::Checkbox("VSync", &vsync)) {
+                if (m_window.isOpen()) {
+                    m_window.getWindow()->setVerticalSyncEnabled(vsync);
+                }
+            }
+
+            // Límite de FPS
+            static int fpsLimit = 60;
+            ImGui::SliderInt("FPS Limit", &fpsLimit, 30, 240);
+            if (ImGui::Button("Aplicar FPS Limit")) {
+                if (m_window.isOpen()) {
+                    m_window.getWindow()->setFramerateLimit(fpsLimit);
+                }
+            }
+
+            ImGui::End();
         }
 
     private:
-        EntityID selectedEntity = NULL_ENTITY; ///< Entidad actualmente seleccionada en el Outliner.
+        EntityID selectedEntity = NULL_ENTITY;
+        Window& m_window;
     };
 
 }
