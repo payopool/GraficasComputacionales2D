@@ -68,5 +68,6 @@ enum ShapeType {
     RECTANGLE = 2, ///< Rectángulo
     TRINAGLE = 3, ///< Triángulo 
     POLYGON = 4, ///< Polígono
-    SQUARE = 5  ///< Cuadrado
+    SQUARE = 5,  ///< Cuadrado
+   
 };

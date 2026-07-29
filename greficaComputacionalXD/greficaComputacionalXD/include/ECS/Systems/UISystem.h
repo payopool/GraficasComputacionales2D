@@ -65,13 +65,22 @@ namespace ECS {
                 if (auto* s = registry.TryGetComponent<Steering>(selectedEntity)) {
                     if (ImGui::CollapsingHeader("Steering", ImGuiTreeNodeFlags_DefaultOpen)) {
                         int behavior = static_cast<int>(s->behavior);
-                        const char* behaviors[] = { "None", "Seek", "Flee", "Arrive", "Wander", "Pursuit", "Obstacle Avoidance" };
+                        const char* behaviors[] = {
+                            "None", "Seek", "Flee", "Arrive",
+                            "Wander", "Pursuit", "Obstacle Avoidance", "Waypoint"
+                        };
                         ImGui::Combo("Behavior", &behavior, behaviors, IM_ARRAYSIZE(behaviors));
                         s->behavior = static_cast<SteeringType>(behavior);
 
                         ImGui::SliderFloat2("Target", &s->target.x, 0.f, 800.f);
                         ImGui::SliderFloat("Speed", &s->speed, 10.f, 300.f);
                         ImGui::SliderFloat("Arrive Radius", &s->arriveRadius, 10.f, 200.f);
+
+                        // Nuevo: mostrar índice del waypoint
+                        if (s->behavior == SteeringType::WAYPOINT) {
+                            ImGui::SliderInt("Current Point", &s->currentPoint, 0, 4);
+                            // 0–4 porque tu circuito tiene 5 puntos
+                        }
 
                         ECS::EntityID circleEntity = 0;
                         if (s->behavior == SteeringType::SEEK) {
@@ -81,6 +90,7 @@ namespace ECS {
                         }
                     }
                 }
+
 
                 // Camera
                 if (auto* c = registry.TryGetComponent<Camera>(selectedEntity)) {

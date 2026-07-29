@@ -75,11 +75,9 @@ void destroy() {
 int main() {
     // Registrar sistemas ECS
     registry.AddSystem<ECS::RenderSystem>(g_window);
-    registry.AddSystem<ECS::Uisystem>(g_window);   
+    registry.AddSystem<ECS::Uisystem>(g_window);
     registry.AddSystem<ECS::CameraSystem>(g_window);
     registry.AddSystem<ECS::SteeringSystem>();
-
-
 
     if (!ImGui::SFML::Init(*g_window.m_window))
         return -1;
@@ -99,16 +97,18 @@ int main() {
         circle,
         ECS::Render::Make(CIRCLE, sf::Color::White, "Texture/Cyberpunk.png")
     );
- 
+
     // Crear triángulo amarillo
     ECS::EntityID tri = registry.CreateEntity();
     registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 260.f, 230.f }, 45.f);
     registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRINAGLE, sf::Color::Yellow));
     registry.AddComponent<ECS::Steering>(tri, ECS::Steering{
-        ECS::SteeringType::NONE,
+        ECS::SteeringType::WAYPOINT,
         sf::Vector2f{400.f, 300.f},
         120.f,
-        50.f
+        50.f,
+        sf::Vector2f{0.f, 0.f},
+        0 // currentPoint inicial
         });
 
     // Crear triángulo azul
@@ -116,10 +116,12 @@ int main() {
     registry.AddComponent<ECS::Transform>(tri1, sf::Vector2f{ 450.f, 430.f }, 45.f);
     registry.AddComponent<ECS::Render>(tri1, ECS::Render::Make(TRINAGLE, sf::Color::Blue));
     registry.AddComponent<ECS::Steering>(tri1, ECS::Steering{
-        ECS::SteeringType::NONE,
+        ECS::SteeringType::WAYPOINT,
         sf::Vector2f{400.f, 300.f},
         120.f,
-        50.f
+        50.f,
+        sf::Vector2f{0.f, 0.f},
+        0
         });
 
     // Crear triángulo rojo
@@ -127,10 +129,12 @@ int main() {
     registry.AddComponent<ECS::Transform>(tri2, sf::Vector2f{ 350.f, 350.f }, 45.f);
     registry.AddComponent<ECS::Render>(tri2, ECS::Render::Make(TRINAGLE, sf::Color::Red));
     registry.AddComponent<ECS::Steering>(tri2, ECS::Steering{
-        ECS::SteeringType::NONE,
+        ECS::SteeringType::WAYPOINT,
         sf::Vector2f{400.f, 300.f},
         120.f,
-        50.f
+        50.f,
+        sf::Vector2f{0.f, 0.f},
+        0
         });
 
     // Crear entidad cámara
@@ -178,3 +182,4 @@ int main() {
     destroy();
     return 0;
 }
+
