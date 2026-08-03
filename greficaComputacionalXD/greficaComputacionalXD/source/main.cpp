@@ -22,7 +22,7 @@
 #include "ECS/Systems/CameraSystem.h"
 #include "ECS/Component/Steering.h"
 #include "ECS/Systems/SteeringSystem.h"
-#include <imgui.h>
+
 
  /// Configura un tema visual estilo "Cyberpunk" para ImGui.
 void SetCyberpunkTheme() {
@@ -52,7 +52,7 @@ void SetCyberpunkTheme() {
 }
 
 /// Ventana principal de la aplicación.
-Window g_window(Window(800, 600, "._."));
+Window g_window(Window(1280, 720, "._."));
 /// Registro ECS que administra entidades, componentes y sistemas.
 ECS::Registry registry;
 
@@ -113,7 +113,7 @@ int main() {
 
     // Crear triángulo azul
     ECS::EntityID tri1 = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(tri1, sf::Vector2f{ 450.f, 430.f }, 45.f);
+    registry.AddComponent<ECS::Transform>(tri1, sf::Vector2f{ 450.f, 430.f }, 20.f);
     registry.AddComponent<ECS::Render>(tri1, ECS::Render::Make(TRINAGLE, sf::Color::Blue));
     registry.AddComponent<ECS::Steering>(tri1, ECS::Steering{
         ECS::SteeringType::WAYPOINT,
@@ -126,7 +126,7 @@ int main() {
 
     // Crear triángulo rojo
     ECS::EntityID tri2 = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(tri2, sf::Vector2f{ 350.f, 350.f }, 45.f);
+    registry.AddComponent<ECS::Transform>(tri2, sf::Vector2f{ 100.f, 100.f }, 45.f);
     registry.AddComponent<ECS::Render>(tri2, ECS::Render::Make(TRINAGLE, sf::Color::Red));
     registry.AddComponent<ECS::Steering>(tri2, ECS::Steering{
         ECS::SteeringType::WAYPOINT,

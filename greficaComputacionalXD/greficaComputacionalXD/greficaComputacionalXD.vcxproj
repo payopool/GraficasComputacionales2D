@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Circuit.h" />
     <ClInclude Include="include\core\CShape.h" />
     <ClInclude Include="include\core\Window.h" />
     <ClInclude Include="include\ECS\ComponentPool.h" />
@@ -35,6 +36,7 @@
     <ClInclude Include="include\ECS\Systems\UISystem.h" />
     <ClInclude Include="include\ECS\Types.h" />
     <ClInclude Include="include\ECS\View.h" />
+    <ClInclude Include="include\Header.h" />
     <ClInclude Include="include\Prerequisitos.h" />
   </ItemGroup>
   <ItemGroup>

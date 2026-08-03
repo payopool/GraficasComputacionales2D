@@ -87,6 +87,12 @@
     <ClInclude Include="include\ECS\Systems\SteeringSystem.h">
       <Filter>Archivos de encabezado\ECS\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="include\Header.h">
+      <Filter>Archivos de encabezado\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Circuit.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">

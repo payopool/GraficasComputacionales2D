@@ -1,23 +1,14 @@
-/**
- *  SteeringSystem.cpp
- *  Implementación del sistema de Steering para entidades con movimiento autónomo.
- */
-
 #include "ECS/Systems/SteeringSystem.h"
 #include "ECS/Registry.h"
 #include "ECS/Component/Transform.h"
 #include "ECS/Component/Steering.h"
+#include "Circuit.h"
 
 namespace ECS {
 
     void SteeringSystem::OnUpdate(Registry& registry, float dt) {
-        std::vector<sf::Vector2f> circuitPoints = {
-           {100.f, 150.f}, {200.f, 160.f}, {300.f, 180.f}, {400.f, 220.f},
-           {450.f, 280.f}, {420.f, 340.f}, {350.f, 380.f}, {250.f, 360.f},
-           {150.f, 300.f}, {120.f, 220.f}
-        };
-
-
+        // pasa tamaño fijo de ventana (ajusta si tu ventana es distinta)
+        auto circuitPoints = GetCircuitPoints({ 1280, 720 });
 
         registry.GetView<Transform, Steering>().Each(
             [&](EntityID id, Transform& t, Steering& s) {
@@ -72,11 +63,11 @@ namespace ECS {
 
                 case SteeringType::WAYPOINT: {
                     sf::Vector2f target = circuitPoints[s.currentPoint];
-                    sf::Vector2f desired = target - t.position;
+                    desired = target - t.position;   // reutiliza variable
                     float len = std::sqrt(desired.x * desired.x + desired.y * desired.y);
                     if (len > 0.f) desired /= len;
 
-                    sf::Vector2f velocity = desired * s.speed * dt;
+                    velocity = desired * s.speed * dt;   // reutiliza variable
                     t.position += velocity;
 
                     if (len < 10.f) {
@@ -85,12 +76,10 @@ namespace ECS {
                     break;
                 }
 
-
                 default:
                     break;
                 }
 
-                // Actualizar posición de la entidad
                 t.position += velocity;
             }
         );
