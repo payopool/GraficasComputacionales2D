@@ -3,11 +3,19 @@
 #include "ECS/Component/Transform.h"
 #include "ECS/Component/Steering.h"
 #include "Circuit.h"
+#include <cmath>
 
 namespace ECS {
 
     void SteeringSystem::OnUpdate(Registry& registry, float dt) {
-        // pasa tamaño fijo de ventana (ajusta si tu ventana es distinta)
+        // acumula tiempo
+        elapsed += dt;
+
+        // espera antes de arrancar
+        if (elapsed < startDelay) {
+            return; // no mover competidores todavía
+        }
+
         auto circuitPoints = GetCircuitPoints({ 1280, 720 });
 
         registry.GetView<Transform, Steering>().Each(
@@ -63,11 +71,27 @@ namespace ECS {
 
                 case SteeringType::WAYPOINT: {
                     sf::Vector2f target = circuitPoints[s.currentPoint];
-                    desired = target - t.position;   // reutiliza variable
+                    desired = target - t.position;
                     float len = std::sqrt(desired.x * desired.x + desired.y * desired.y);
                     if (len > 0.f) desired /= len;
 
-                    velocity = desired * s.speed * dt;   // reutiliza variable
+                    velocity = desired * s.speed * dt;
+
+                    // evitar colisiones / rebasar
+                    registry.GetView<Transform, Steering>().Each(
+                        [&](EntityID otherId, Transform& ot, Steering& os) {
+                            if (id == otherId) return;
+                            float dist = std::hypot(ot.position.x - t.position.x,
+                                ot.position.y - t.position.y);
+                            if (dist < 30.f) {
+                                velocity *= 0.8f; // frena si está muy cerca
+                            }
+                            else if (dist > 60.f) {
+                                velocity *= 1.1f; // acelera si hay espacio
+                            }
+                        }
+                    );
+
                     t.position += velocity;
 
                     if (len < 10.f) {

@@ -1,15 +1,3 @@
-/**
- *  main.cpp
- *  Punto de entrada principal de la aplicación de gráficas computacionales 2D con ECS.
- *
- * Este archivo inicializa la ventana, configura ImGui con un tema personalizado,
- * registra los sistemas ECS (Render, UI, Cámara, Steering) y crea las entidades
- * que forman parte de la escena (círculo, triángulos y cámara).
- *
- * La aplicación corre en un bucle principal que procesa eventos, actualiza sistemas
- * y renderiza la interfaz gráfica junto con las figuras en pantalla.
- */
-
 #include "Prerequisitos.h"
 #include "Core/Window.h"
 #include "Core/CShape.h"
@@ -22,55 +10,14 @@
 #include "ECS/Systems/CameraSystem.h"
 #include "ECS/Component/Steering.h"
 #include "ECS/Systems/SteeringSystem.h"
+#include "ECS/Component/Meta.h"  
 
-
- /// Configura un tema visual estilo "Cyberpunk" para ImGui.
-void SetCyberpunkTheme() {
-    ImGuiStyle& style = ImGui::GetStyle();
-    ImVec4* colors = style.Colors;
-
-    colors[ImGuiCol_WindowBg] = ImVec4(0.05f, 0.05f, 0.08f, 1.0f);
-    colors[ImGuiCol_Header] = ImVec4(0.00f, 0.40f, 0.80f, 1.0f);
-    colors[ImGuiCol_HeaderHovered] = ImVec4(0.10f, 0.55f, 0.95f, 1.0f);
-    colors[ImGuiCol_HeaderActive] = ImVec4(0.20f, 0.65f, 1.00f, 1.0f);
-
-    colors[ImGuiCol_Tab] = ImVec4(0.00f, 0.40f, 0.80f, 1.0f);
-    colors[ImGuiCol_TabHovered] = ImVec4(0.10f, 0.55f, 0.95f, 1.0f);
-    colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.65f, 1.00f, 1.0f);
-
-    colors[ImGuiCol_Button] = ImVec4(0.80f, 0.00f, 0.50f, 1.0f);
-    colors[ImGuiCol_ButtonHovered] = ImVec4(1.00f, 0.20f, 0.70f, 1.0f);
-    colors[ImGuiCol_ButtonActive] = ImVec4(1.00f, 0.40f, 0.80f, 1.0f);
-
-    colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.10f, 0.25f, 1.0f);
-    colors[ImGuiCol_FrameBgHovered] = ImVec4(0.35f, 0.15f, 0.40f, 1.0f);
-    colors[ImGuiCol_FrameBgActive] = ImVec4(0.45f, 0.20f, 0.55f, 1.0f);
-
-    style.FrameRounding = 8.0f;
-    style.GrabRounding = 8.0f;
-    style.WindowBorderSize = 1.0f;
-}
-
-/// Ventana principal de la aplicación.
 Window g_window(Window(1280, 720, "._."));
-/// Registro ECS que administra entidades, componentes y sistemas.
 ECS::Registry registry;
 
-/// Libera recursos de ImGui al cerrar la aplicación.
 void destroy() {
     ImGui::SFML::Shutdown();
 }
-
-/**
- *  Función principal de la aplicación.
- *
- * - Inicializa ImGui y los sistemas ECS.
- * - Crea las entidades de la escena (círculo y triángulos).
- * - Configura la cámara.
- * - Ejecuta el bucle principal de eventos, actualización y renderizado.
- *
- * Código de salida (0 si la ejecución fue exitosa).
- */
 
 int main() {
     // Registrar sistemas ECS
@@ -85,10 +32,26 @@ int main() {
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-    SetCyberpunkTheme();
-
     sf::Clock deltaClock;
     bool showDemoWindow = true;
+
+    // Obtener puntos del circuito
+    auto circuitPoints = GetCircuitPoints({ 1280, 720 });
+    size_t metaIndex = 250;
+    if (metaIndex >= circuitPoints.size()) metaIndex = circuitPoints.size() / 2;
+
+    // Crear entidad meta (ahora sí ya existe metaIndex)
+    ECS::EntityID metaEntity = registry.CreateEntity();
+    registry.AddComponent<ECS::Meta>(metaEntity, ECS::Meta{ metaIndex });
+
+    sf::Vector2f metaPos = circuitPoints[metaIndex];
+    sf::Vector2f nextPos = circuitPoints[metaIndex + 1];
+
+    sf::Vector2f metaDir = nextPos - metaPos;
+    float metaLen = std::sqrt(metaDir.x * metaDir.x + metaDir.y * metaDir.y);
+    if (metaLen != 0) metaDir /= metaLen;
+
+    sf::Vector2f metaNormal(-metaDir.y, metaDir.x);
 
     // Crear entidad círculo
     ECS::EntityID circle = registry.CreateEntity();
@@ -98,53 +61,58 @@ int main() {
         ECS::Render::Make(CIRCLE, sf::Color::White, "Texture/Cyberpunk.png")
     );
 
-    // Crear triángulo amarillo
-    ECS::EntityID tri = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 260.f, 230.f }, 45.f);
-    registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRINAGLE, sf::Color::Yellow));
-    registry.AddComponent<ECS::Steering>(tri, ECS::Steering{
+    // posiciones iniciales en carriles
+    sf::Vector2f startYellow = metaPos + metaNormal * 20.f;
+    sf::Vector2f startBlue = metaPos - metaNormal * 20.f;
+    sf::Vector2f startRed = metaPos;
+
+    // Triángulo amarillo
+    ECS::EntityID triYellow = registry.CreateEntity();
+    registry.AddComponent<ECS::Transform>(triYellow, startYellow, 0.f);
+    registry.AddComponent<ECS::Render>(triYellow, ECS::Render::Make(TRINAGLE, sf::Color::Yellow));
+    registry.AddComponent<ECS::Steering>(triYellow, ECS::Steering{
         ECS::SteeringType::WAYPOINT,
-        sf::Vector2f{400.f, 300.f},
-        120.f,
-        50.f,
+        startYellow,
+        40.f + static_cast<float>(std::rand() % 70),
+        40.f,
         sf::Vector2f{0.f, 0.f},
-        0 // currentPoint inicial
+        static_cast<int>(metaIndex + 1)
         });
 
-    // Crear triángulo azul
-    ECS::EntityID tri1 = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(tri1, sf::Vector2f{ 450.f, 430.f }, 20.f);
-    registry.AddComponent<ECS::Render>(tri1, ECS::Render::Make(TRINAGLE, sf::Color::Blue));
-    registry.AddComponent<ECS::Steering>(tri1, ECS::Steering{
+    // Triángulo azul
+    ECS::EntityID triBlue = registry.CreateEntity();
+    registry.AddComponent<ECS::Transform>(triBlue, startBlue, 0.f);
+    registry.AddComponent<ECS::Render>(triBlue, ECS::Render::Make(TRINAGLE, sf::Color::Blue));
+    registry.AddComponent<ECS::Steering>(triBlue, ECS::Steering{
         ECS::SteeringType::WAYPOINT,
-        sf::Vector2f{400.f, 300.f},
-        120.f,
-        50.f,
+        startBlue,
+        40.f + static_cast<float>(std::rand() % 70),
+        40.f,
         sf::Vector2f{0.f, 0.f},
-        0
+        static_cast<int>(metaIndex + 2)
         });
 
-    // Crear triángulo rojo
-    ECS::EntityID tri2 = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(tri2, sf::Vector2f{ 100.f, 100.f }, 45.f);
-    registry.AddComponent<ECS::Render>(tri2, ECS::Render::Make(TRINAGLE, sf::Color::Red));
-    registry.AddComponent<ECS::Steering>(tri2, ECS::Steering{
+    // Triángulo rojo
+    ECS::EntityID triRed = registry.CreateEntity();
+    registry.AddComponent<ECS::Transform>(triRed, startRed, 0.f);
+    registry.AddComponent<ECS::Render>(triRed, ECS::Render::Make(TRINAGLE, sf::Color::Red));
+    registry.AddComponent<ECS::Steering>(triRed, ECS::Steering{
         ECS::SteeringType::WAYPOINT,
-        sf::Vector2f{400.f, 300.f},
-        120.f,
-        50.f,
+        startRed,
+        40.f + static_cast<float>(std::rand() % 70),
+        40.f,
         sf::Vector2f{0.f, 0.f},
-        0
+        static_cast<int>(metaIndex + 3)
         });
 
-    // Crear entidad cámara
+    // Cámara
     ECS::EntityID cameraEntity = registry.CreateEntity();
     registry.AddComponent<ECS::Transform>(cameraEntity, sf::Vector2f{ 400.f, 300.f });
     registry.AddComponent<ECS::Camera>(cameraEntity, ECS::Camera{
-        true,   // activa
-        circle, // sigue al círculo
-        2.0f,   // velocidad de seguimiento
-        1.0f    // zoom inicial
+        true,
+        circle,
+        2.0f,
+        1.0f
         });
 
     // Bucle principal
@@ -172,7 +140,6 @@ int main() {
 
         g_window.clear(sf::Color::Black);
 
-        // Actualizar sistemas (Render, UI, Camera, Steering)
         registry.UpdateSystems(dt);
 
         ImGui::SFML::Render(*g_window.m_window);
@@ -182,4 +149,3 @@ int main() {
     destroy();
     return 0;
 }
-

@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include "Prerequisitos.h"
 #include "ECS/System.h"
 #include "ECS/Registry.h"
@@ -12,20 +11,19 @@ namespace ECS {
      * SteeringSystem
      * Sistema encargado de actualizar entidades con comportamiento Steering.
      *
-     * Este sistema aplica las reglas de SEEK, FLEE, ARRIVE WANDER etc. sobre las entidades
-     * que poseen los componentes Transform y Steering.
+     * Este sistema aplica las reglas de SEEK, FLEE, ARRIVE, WANDER, etc.
      */
     class SteeringSystem final : public System {
     public:
-        /// Constructor por defecto.
-        SteeringSystem() = default;
+        /// Constructor con temporizador de inicio
+        SteeringSystem() : startDelay(3.f), elapsed(0.f) {}
 
-        /**
-         * Actualiza las posiciones de las entidades según su comportamiento Steering.
-         * registry Referencia al registro ECS.
-         * dt Delta time (tiempo transcurrido entre frames).
-         */
+        /// Actualiza las posiciones de las entidades según su comportamiento Steering.
         void OnUpdate(Registry& registry, float dt) override;
+
+    private:
+        float startDelay; // tiempo de espera en segundos
+        float elapsed;    // tiempo acumulado
     };
 
 }
