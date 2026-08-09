@@ -1,12 +1,31 @@
+/**
+ *  SteeringSystem.cpp
+ *  Sistema ECS encargado de actualizar el movimiento autónomo de las entidades.
+ *
+ * Implementa diferentes comportamientos de steering:
+ * - SEEK: moverse hacia un objetivo.
+ * - FLEE: alejarse de un objetivo.
+ * - ARRIVE: acercarse desacelerando.
+ * - WANDER: movimiento aleatorio.
+ * - PURSUIT: perseguir un objetivo en movimiento.
+ * - OBSTACLE_AVOIDANCE: evitar obstáculos.
+ * - WAYPOINT: seguir puntos de un circuito.
+ */
+
 #include "ECS/Systems/SteeringSystem.h"
 #include "ECS/Registry.h"
 #include "ECS/Component/Transform.h"
 #include "ECS/Component/Steering.h"
 #include "Circuit.h"
 
-
 namespace ECS {
 
+    /**
+     *  Actualiza el movimiento de las entidades con componente Steering.
+     *
+     *  registry Registro ECS con todas las entidades y componentes.
+     *  dt Tiempo transcurrido desde el último frame (delta time).
+     */
     void SteeringSystem::OnUpdate(Registry& registry, float dt) {
         // acumula tiempo
         elapsed += dt;
@@ -16,18 +35,22 @@ namespace ECS {
             return; // no mover competidores todavía
         }
 
+        // Obtener puntos del circuito
         auto circuitPoints = GetCircuitPoints({ 1280, 720 });
 
+        // Iterar sobre todas las entidades con Transform y Steering
         registry.GetView<Transform, Steering>().Each(
             [&](EntityID id, Transform& t, Steering& s) {
                 if (s.behavior == SteeringType::NONE) return;
 
+                // Vector hacia el objetivo
                 sf::Vector2f desired = s.target - t.position;
                 float length = std::sqrt(desired.x * desired.x + desired.y * desired.y);
                 if (length > 0.f) desired /= length;
 
                 sf::Vector2f velocity;
 
+                // Selección de comportamiento
                 switch (s.behavior) {
                 case SteeringType::SEEK:
                     velocity = desired * s.speed * dt;
@@ -70,6 +93,7 @@ namespace ECS {
                     break;
 
                 case SteeringType::WAYPOINT: {
+                    // Seguir puntos del circuito
                     sf::Vector2f target = circuitPoints[s.currentPoint];
                     desired = target - t.position;
                     float len = std::sqrt(desired.x * desired.x + desired.y * desired.y);
@@ -77,7 +101,7 @@ namespace ECS {
 
                     velocity = desired * s.speed * dt;
 
-                    // evitar colisiones / rebasar
+                    // Evitar colisiones / simular rebase
                     registry.GetView<Transform, Steering>().Each(
                         [&](EntityID otherId, Transform& ot, Steering& os) {
                             if (id == otherId) return;
@@ -86,7 +110,7 @@ namespace ECS {
                             if (dist < 30.f) {
                                 velocity *= 0.8f; // frena si está muy cerca
 
-                                
+                                // desplazamiento lateral
                                 sf::Vector2f side(-desired.y, desired.x); // vector perpendicular
                                 float sideLen = std::sqrt(side.x * side.x + side.y * side.y);
                                 if (sideLen > 0.f) side /= sideLen;
@@ -98,9 +122,9 @@ namespace ECS {
                         }
                     );
 
-
                     t.position += velocity;
 
+                    // Avanzar al siguiente punto
                     if (len < 10.f) {
                         s.currentPoint = (s.currentPoint + 1) % circuitPoints.size();
                     }
@@ -111,12 +135,12 @@ namespace ECS {
                     break;
                 }
 
-             
+                // Actualizar rotación para que apunten hacia adelante
                 if (velocity.x != 0.f || velocity.y != 0.f) {
                     t.rotation = std::atan2(velocity.y, velocity.x) * 180.f / 3.14159f;
                 }
 
-                // aplicar movimiento
+                // Aplicar movimiento
                 t.position += velocity;
             }
         );

@@ -1,3 +1,13 @@
+/**
+ *  Uisystem.h
+ *  Sistema ECS encargado de la interfaz gráfica de usuario (UI).
+ *
+ * Este sistema utiliza ImGui para mostrar paneles de control:
+ * - Outliner: lista de entidades.
+ * - Inspector: edición de componentes (Transform, Render, Steering, Camera).
+ * - Render Options: configuración global de renderizado (MSAA, VSync, FPS).
+ */
+
 #pragma once
 #include "Prerequisitos.h"
 #include "ECS/System.h"
@@ -8,17 +18,34 @@
 #include "ECS/Component/Steering.h"
 #include "Core/Window.h"
 
-
 namespace ECS {
 
+    /**
+     *  Uisystem
+     *  Sistema ECS para gestionar la interfaz gráfica con ImGui.
+     *
+     * Permite:
+     * - Seleccionar entidades en un panel Outliner.
+     * - Inspeccionar y modificar componentes de la entidad seleccionada.
+     * - Configurar opciones globales de renderizado.
+     */
     class Uisystem final : public System {
     public:
+        /**
+         *  Constructor del sistema UI.
+         *  window Referencia a la ventana principal.
+         */
         explicit Uisystem(Window& window) noexcept
             : m_window(window) {
         }
 
+        /**
+         *  Actualiza la interfaz gráfica en cada frame.
+         *  registry Registro ECS con todas las entidades y componentes.
+         *  deltaTime Tiempo transcurrido desde el último frame.
+         */
         void OnUpdate(Registry& registry, float /*deltaTime*/) override {
-            // Panel Outliner
+            // Panel Outliner: lista de entidades
             ImGui::Begin("Figures");
             registry.GetView<Transform>().Each(
                 [&](EntityID id, Transform&) {
@@ -30,7 +57,7 @@ namespace ECS {
             );
             ImGui::End();
 
-            // Panel Inspector
+            // Panel Inspector: edición de componentes
             ImGui::Begin("Inspector");
 
             if (selectedEntity != NULL_ENTITY) {
@@ -76,21 +103,11 @@ namespace ECS {
                         ImGui::SliderFloat("Speed", &s->speed, 10.f, 300.f);
                         ImGui::SliderFloat("Arrive Radius", &s->arriveRadius, 10.f, 200.f);
 
-                        // Nuevo: mostrar índice del waypoint
                         if (s->behavior == SteeringType::WAYPOINT) {
                             ImGui::SliderInt("Current Point", &s->currentPoint, 0, 4);
-                            // 0–4 porque tu circuito tiene 5 puntos
-                        }
-
-                        ECS::EntityID circleEntity = 0;
-                        if (s->behavior == SteeringType::SEEK) {
-                            if (auto* circleTransform = registry.TryGetComponent<Transform>(circleEntity)) {
-                                s->target = circleTransform->position;
-                            }
                         }
                     }
                 }
-
 
                 // Camera
                 if (auto* c = registry.TryGetComponent<Camera>(selectedEntity)) {
@@ -107,14 +124,12 @@ namespace ECS {
             // Panel de Opciones Globales de Renderizado
             ImGui::Begin("Render Options");
 
-            // Slider para MSAA
             static int msaaLevel = 0;
             ImGui::SliderInt("MSAA Level", &msaaLevel, 0, 16);
             if (ImGui::Button("Aplicar MSAA")) {
                 m_window.setMSAALevel(msaaLevel);
             }
 
-            // Toggle de VSync
             static bool vsync = true;
             if (ImGui::Checkbox("VSync", &vsync)) {
                 if (m_window.isOpen()) {
@@ -122,7 +137,6 @@ namespace ECS {
                 }
             }
 
-            // Límite de FPS
             static int fpsLimit = 60;
             ImGui::SliderInt("FPS Limit", &fpsLimit, 30, 240);
             if (ImGui::Button("Aplicar FPS Limit")) {
@@ -135,8 +149,8 @@ namespace ECS {
         }
 
     private:
-        EntityID selectedEntity = NULL_ENTITY;
-        Window& m_window;
+        EntityID selectedEntity = NULL_ENTITY; ///< Entidad actualmente seleccionada en el inspector
+        Window& m_window; ///< Referencia a la ventana principal
     };
 
 }

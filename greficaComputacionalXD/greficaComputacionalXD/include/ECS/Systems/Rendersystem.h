@@ -1,22 +1,53 @@
+/**
+ *  RenderSystem.h
+ *  Sistema ECS encargado de dibujar la pista, meta y entidades en pantalla.
+ *
+ * Este sistema:
+ * - Dibuja el fondo (césped).
+ * - Renderiza la pista gris con grosor.
+ * - Traza la línea central amarilla.
+ * - Dibuja la meta como cuadros blancos y negros.
+ * - Renderiza las entidades con componentes Transform y Render.
+ */
+
 #pragma once
 #include "ECS/System.h"
 #include "ECS/Registry.h"
 #include "ECS/Component/Transform.h"
 #include "ECS/Component/Render.h"
-#include "ECS/Component/Meta.h"   /
+#include "ECS/Component/Meta.h"
 #include "core/Window.h"
 #include "Circuit.h"
-#include <SFML/Graphics.hpp>
-#include <cmath>
+
+
 
 namespace ECS {
 
+    /**
+     *  RenderSystem
+     *  Sistema ECS para renderizar el circuito y las entidades.
+     *
+     * Se encarga de:
+     * - Dibujar el escenario (fondo y pista).
+     * - Mostrar la línea central amarilla.
+     * - Dibujar la meta en cuadros alternados.
+     * - Renderizar las entidades visibles con sus transformaciones.
+     */
     class RenderSystem final : public System {
     public:
+        /**
+         *  Constructor del sistema de renderizado.
+         *  window Referencia a la ventana principal.
+         */
         explicit RenderSystem(Window& window) noexcept
             : m_window(window) {
         }
 
+        /**
+         *  Actualiza el renderizado en cada frame.
+         *  registry Registro ECS con todas las entidades y componentes.
+         *  deltaTime Tiempo transcurrido desde el último frame.
+         */
         void OnUpdate(Registry& registry, float /*deltaTime*/) override {
             auto circuitPoints = GetCircuitPoints({ 1280, 720 });
 
@@ -93,7 +124,7 @@ namespace ECS {
                 float metaWidth = 10.f;
                 float metaHeight = 70.f;
 
-                // desplazamos los cuadros a lo largo de la normal, pero centrados
+                // base de la meta
                 sf::Vector2f basePos = metaPos - metaNormal * (metaHeight / 2.f);
 
                 for (int i = 0; i < 7; ++i) {
@@ -105,7 +136,7 @@ namespace ECS {
                 }
                 });
 
-            // Entidades al frente
+            // Dibujar entidades con Transform y Render
             registry.GetView<Transform, Render>().Each(
                 [this](EntityID, Transform& t, Render& r) {
                     if (!r.shape || !r.visisble) return;
@@ -119,7 +150,7 @@ namespace ECS {
         }
 
     private:
-        Window& m_window;
+        Window& m_window; ///< Referencia a la ventana principal
     };
 
 } // namespace ECS

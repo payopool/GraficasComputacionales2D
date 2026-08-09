@@ -1,7 +1,25 @@
-#pragma once
-#pragma once
-#include"Prerequisitos.h"
+/**
+ *  Circuit.h
+ *  Funciones auxiliares para generar el circuito de la pista.
+ *
+ * Contiene la función GetCircuitPoints, que devuelve una lista de puntos
+ * representando el trazado de la pista, escalados y centrados en la ventana.
+ */
 
+#pragma once
+#include "Prerequisitos.h"
+
+ /**
+  * @brief Genera los puntos del circuito de la pista.
+  *
+  * - Define un conjunto inicial de puntos que forman curvas y rectas.
+  * - Escala los puntos para alargar las curvas.
+  * - Calcula el bounding box de la pista para obtener su centro.
+  * - Ajusta los puntos con un offset para centrar la pista en la ventana.
+  *
+  * @param windowSize Tamaño de la ventana (ancho y alto).
+  * @return std::vector<sf::Vector2f> Lista de puntos del circuito centrado.
+  */
 inline std::vector<sf::Vector2f> GetCircuitPoints(sf::Vector2u windowSize) {
     std::vector<sf::Vector2f> points = {
         {200.f, 650.f}, {280.f, 600.f}, {360.f, 550.f}, {440.f, 500.f},
