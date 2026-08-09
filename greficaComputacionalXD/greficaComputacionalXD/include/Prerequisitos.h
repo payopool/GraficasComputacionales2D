@@ -63,11 +63,12 @@
     * @brief Enumeración para tipos de figuras geométricas.
     */
 enum ShapeType {
-    EMPTY = 0, ///< Sin figura
-    CIRCLE = 1, ///< Círculo
-    RECTANGLE = 2, ///< Rectángulo
-    TRINAGLE = 3, ///< Triángulo 
-    POLYGON = 4, ///< Polígono
-    SQUARE = 5,  ///< Cuadrado
-   
+    EMPTY,
+    CIRCLE,
+    RECTANGLE,
+    TRINAGLE,
+    POLYGON,
+    SQUARE,
+    CAR // <-- tu coche
 };
+

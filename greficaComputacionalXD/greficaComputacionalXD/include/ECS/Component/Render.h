@@ -93,6 +93,14 @@ namespace ECS {
                 s = t;
                 break;
             }
+            case CAR: {
+                sf::Vector2f size{ 60.f, 30.f }; // antes era 40x20, ahora el doble
+                auto r = std::make_shared<sf::RectangleShape>(size);
+                r->setOrigin(size / 2.f); // centro para que rote bien
+                s = r;
+                break;
+            }
+
             default:
                 break;
             }
@@ -106,6 +114,7 @@ namespace ECS {
             if (s) s->setFillColor(color);
             return render;
         }
+
 
 
     };

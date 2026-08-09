@@ -3,7 +3,7 @@
 #include "ECS/Component/Transform.h"
 #include "ECS/Component/Steering.h"
 #include "Circuit.h"
-#include <cmath>
+
 
 namespace ECS {
 
@@ -85,12 +85,19 @@ namespace ECS {
                                 ot.position.y - t.position.y);
                             if (dist < 30.f) {
                                 velocity *= 0.8f; // frena si está muy cerca
+
+                                
+                                sf::Vector2f side(-desired.y, desired.x); // vector perpendicular
+                                float sideLen = std::sqrt(side.x * side.x + side.y * side.y);
+                                if (sideLen > 0.f) side /= sideLen;
+                                velocity += side * 15.f * dt; // se mueve un poco al lado
                             }
                             else if (dist > 60.f) {
                                 velocity *= 1.1f; // acelera si hay espacio
                             }
                         }
                     );
+
 
                     t.position += velocity;
 
@@ -104,6 +111,12 @@ namespace ECS {
                     break;
                 }
 
+             
+                if (velocity.x != 0.f || velocity.y != 0.f) {
+                    t.rotation = std::atan2(velocity.y, velocity.x) * 180.f / 3.14159f;
+                }
+
+                // aplicar movimiento
                 t.position += velocity;
             }
         );

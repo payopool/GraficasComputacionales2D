@@ -86,6 +86,22 @@ std::unique_ptr<sf::Shape> CShape::createShape(ShapeType shapeType) {
         return square;
     }
 
+    case CAR: {
+        // Rectángulo pequeño para simular un coche visto desde arriba
+        auto rect = std::make_unique<sf::RectangleShape>(sf::Vector2f(40.f, 20.f));
+
+        // Centrar el origen para que las rotaciones sean naturales
+        rect->setOrigin(sf::Vector2f(20.f, 7.5f));
+
+        // Color por defecto (luego lo cambias con Render)
+        rect->setFillColor(sf::Color::White);
+
+        return rect;
+    }
+
+
+
+
     default:
         return nullptr;
     }

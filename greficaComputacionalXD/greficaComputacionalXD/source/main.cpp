@@ -65,44 +65,52 @@ int main() {
     sf::Vector2f startYellow = metaPos + metaNormal * 20.f;
     sf::Vector2f startBlue = metaPos - metaNormal * 20.f;
     sf::Vector2f startRed = metaPos;
-
-    // Triángulo amarillo
-    ECS::EntityID triYellow = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(triYellow, startYellow, 0.f);
-    registry.AddComponent<ECS::Render>(triYellow, ECS::Render::Make(TRINAGLE, sf::Color::Yellow));
-    registry.AddComponent<ECS::Steering>(triYellow, ECS::Steering{
+    // Carro amarillo
+    ECS::EntityID carYellow = registry.CreateEntity();
+    registry.AddComponent<ECS::Transform>(carYellow, startYellow, 0.f);
+    registry.AddComponent<ECS::Render>(
+        carYellow,
+        ECS::Render::Make(CAR, sf::Color::Yellow, "Texture/Carrito.png")
+    );
+    registry.AddComponent<ECS::Steering>(carYellow, ECS::Steering{
         ECS::SteeringType::WAYPOINT,
         startYellow,
-        40.f + static_cast<float>(std::rand() % 70),
+        40.f + static_cast<float>(std::rand() % 60),
         40.f,
         sf::Vector2f{0.f, 0.f},
         static_cast<int>(metaIndex + 1)
         });
 
-    // Triángulo azul
-    ECS::EntityID triBlue = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(triBlue, startBlue, 0.f);
-    registry.AddComponent<ECS::Render>(triBlue, ECS::Render::Make(TRINAGLE, sf::Color::Blue));
-    registry.AddComponent<ECS::Steering>(triBlue, ECS::Steering{
+    // Carro azul
+    ECS::EntityID carBlue = registry.CreateEntity();
+    registry.AddComponent<ECS::Transform>(carBlue, startBlue, 0.f);
+    registry.AddComponent<ECS::Render>(
+        carBlue,
+        ECS::Render::Make(CAR, sf::Color::Blue, "Texture/Carrito.png")
+    );
+    registry.AddComponent<ECS::Steering>(carBlue, ECS::Steering{
         ECS::SteeringType::WAYPOINT,
         startBlue,
-        40.f + static_cast<float>(std::rand() % 70),
+        40.f + static_cast<float>(std::rand() % 60),
         40.f,
         sf::Vector2f{0.f, 0.f},
         static_cast<int>(metaIndex + 2)
         });
 
-    // Triángulo rojo
-    ECS::EntityID triRed = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(triRed, startRed, 0.f);
-    registry.AddComponent<ECS::Render>(triRed, ECS::Render::Make(TRINAGLE, sf::Color::Red));
-    registry.AddComponent<ECS::Steering>(triRed, ECS::Steering{
+    // Carro rojo
+    ECS::EntityID carRed = registry.CreateEntity();
+    registry.AddComponent<ECS::Transform>(carRed, startRed, 0.f);
+    registry.AddComponent<ECS::Render>(
+        carRed,
+        ECS::Render::Make(CAR, sf::Color::Red, "Texture/Carrito.png")
+    );
+    registry.AddComponent<ECS::Steering>(carRed, ECS::Steering{
         ECS::SteeringType::WAYPOINT,
         startRed,
         40.f + static_cast<float>(std::rand() % 70),
         40.f,
         sf::Vector2f{0.f, 0.f},
-        static_cast<int>(metaIndex + 3)
+        static_cast<int>((metaIndex + 3) % circuitPoints.size()) 
         });
 
     // Cámara
