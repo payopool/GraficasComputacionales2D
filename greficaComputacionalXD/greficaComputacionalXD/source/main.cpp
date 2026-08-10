@@ -1,9 +1,6 @@
 /**
  *  main.cpp
  *  Punto de entrada principal del simulador de carreras con ECS.
- *
- * Este archivo inicializa la ventana, registra los sistemas ECS,
- * crea las entidades (carros, meta, cámara) y ejecuta el bucle principal.
  */
 
 #include "Prerequisitos.h"
@@ -13,12 +10,14 @@
 #include "ECS/Component/Transform.h"
 #include "ECS/Component/Render.h"
 #include "ECS/Component/Camera.h"
+#include "ECS/Component/Steering.h"
+#include "ECS/Component/Meta.h"
+#include "ECS/Component/LapData.h"  
 #include "ECS/Systems/RenderSystem.h"
 #include "ECS/Systems/Uisystem.h"
 #include "ECS/Systems/CameraSystem.h"
-#include "ECS/Component/Steering.h"
 #include "ECS/Systems/SteeringSystem.h"
-#include "ECS/Component/Meta.h"  
+#include "ECS/Systems/LeaderboardSystem.h" 
 
  /// Ventana global del simulador
 Window g_window(Window(1280, 720, "._."));
@@ -26,33 +25,18 @@ Window g_window(Window(1280, 720, "._."));
 /// Registro ECS global
 ECS::Registry registry;
 
-/**
- *  Función de limpieza al cerrar la aplicación.
- *
- * Apaga la integración de ImGui con SFML.
- */
 void destroy() {
     ImGui::SFML::Shutdown();
 }
 
-/**
- *  Función principal del programa.
- *
- * - Registra los sistemas ECS (render, UI, cámara, steering).
- * - Inicializa ImGui.
- * - Crea las entidades: meta, círculo de referencia y tres carros.
- * - Ejecuta el bucle principal de renderizado y actualización.
- *
- * @return int Código de salida (0 si todo fue correcto).
- */
 int main() {
     // Registrar sistemas ECS
     registry.AddSystem<ECS::RenderSystem>(g_window);
     registry.AddSystem<ECS::Uisystem>(g_window);
     registry.AddSystem<ECS::CameraSystem>(g_window);
     registry.AddSystem<ECS::SteeringSystem>();
+    registry.AddSystem<ECS::LeaderboardSystem>(); // <-- nuevo
 
-    // Inicializar ImGui con SFML
     if (!ImGui::SFML::Init(*g_window.m_window))
         return -1;
 
@@ -60,7 +44,6 @@ int main() {
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     sf::Clock deltaClock;
-    bool showDemoWindow = true;
 
     // Obtener puntos del circuito
     auto circuitPoints = GetCircuitPoints({ 1280, 720 });
@@ -79,7 +62,7 @@ int main() {
     if (metaLen != 0) metaDir /= metaLen;
     sf::Vector2f metaNormal(-metaDir.y, metaDir.x);
 
-    // Crear entidad círculo de referencia
+    // Crear entidad círculo
     ECS::EntityID circle = registry.CreateEntity();
     registry.AddComponent<ECS::Transform>(circle, sf::Vector2f{ 400.f, 300.f });
     registry.AddComponent<ECS::Render>(
@@ -87,7 +70,7 @@ int main() {
         ECS::Render::Make(CIRCLE, sf::Color::White, "Texture/Cyberpunk.png")
     );
 
-    // Posiciones iniciales en carriles
+    // Posiciones iniciales
     sf::Vector2f startYellow = metaPos + metaNormal * 20.f;
     sf::Vector2f startBlue = metaPos - metaNormal * 20.f;
     sf::Vector2f startRed = metaPos;
@@ -107,6 +90,7 @@ int main() {
         sf::Vector2f{0.f, 0.f},
         static_cast<int>(metaIndex + 1)
         });
+    registry.AddComponent<ECS::LapData>(carYellow, ECS::LapData{}); // <-- nuevo
 
     // Carro azul
     ECS::EntityID carBlue = registry.CreateEntity();
@@ -123,6 +107,7 @@ int main() {
         sf::Vector2f{0.f, 0.f},
         static_cast<int>(metaIndex + 2)
         });
+    registry.AddComponent<ECS::LapData>(carBlue, ECS::LapData{}); // <-- nuevo
 
     // Carro rojo
     ECS::EntityID carRed = registry.CreateEntity();
@@ -139,8 +124,9 @@ int main() {
         sf::Vector2f{0.f, 0.f},
         static_cast<int>((metaIndex + 3) % circuitPoints.size())
         });
+    registry.AddComponent<ECS::LapData>(carRed, ECS::LapData{}); // <-- nuevo
 
-    // Cámara principal
+    // Cámara
     ECS::EntityID cameraEntity = registry.CreateEntity();
     registry.AddComponent<ECS::Transform>(cameraEntity, sf::Vector2f{ 400.f, 300.f });
     registry.AddComponent<ECS::Camera>(cameraEntity, ECS::Camera{
@@ -154,10 +140,7 @@ int main() {
     while (g_window.isOpen()) {
         while (const std::optional event = g_window.m_window->pollEvent()) {
             ImGui::SFML::ProcessEvent(*g_window.m_window, *event);
-
-            if (event->is<sf::Event::Closed>()) {
-                g_window.close();
-            }
+            if (event->is<sf::Event::Closed>()) g_window.close();
             else if (const auto* resized = event->getIf<sf::Event::Resized>()) {
                 g_window.handleResize(resized->size);
             }
@@ -171,10 +154,7 @@ int main() {
         ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockspaceFlags);
 
-        ImGui::ShowDemoWindow(&showDemoWindow);
-
         g_window.clear(sf::Color::Black);
-
         registry.UpdateSystems(dt);
 
         ImGui::SFML::Render(*g_window.m_window);

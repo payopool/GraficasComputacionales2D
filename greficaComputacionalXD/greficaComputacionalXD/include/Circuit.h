@@ -1,27 +1,16 @@
-/**
- *  Circuit.h
- *  Funciones auxiliares para generar el circuito de la pista.
- *
- * Contiene la función GetCircuitPoints, que devuelve una lista de puntos
- * representando el trazado de la pista, escalados y centrados en la ventana.
- */
-
 #pragma once
 #include "Prerequisitos.h"
 
- /**
-  * @brief Genera los puntos del circuito de la pista.
-  *
-  * - Define un conjunto inicial de puntos que forman curvas y rectas.
-  * - Escala los puntos para alargar las curvas.
-  * - Calcula el bounding box de la pista para obtener su centro.
-  * - Ajusta los puntos con un offset para centrar la pista en la ventana.
-  *
-  * @param windowSize Tamaño de la ventana (ancho y alto).
-  * @return std::vector<sf::Vector2f> Lista de puntos del circuito centrado.
-  */
+
+/**
+ * @brief Genera los puntos del circuito de la pista con suavizado.
+ *
+ * - Usa los puntos originales como control.
+ * - Aplica Catmull-Rom spline para suavizar las curvas.
+ * - Escala y centra la pista en la ventana.
+ */
 inline std::vector<sf::Vector2f> GetCircuitPoints(sf::Vector2u windowSize) {
-    std::vector<sf::Vector2f> points = {
+    std::vector<sf::Vector2f> controlPoints = {
         {200.f, 650.f}, {280.f, 600.f}, {360.f, 550.f}, {440.f, 500.f},
         {520.f, 480.f}, {600.f, 500.f}, {680.f, 560.f},
         {660.f, 460.f}, {580.f, 400.f}, {500.f, 360.f},
@@ -31,11 +20,37 @@ inline std::vector<sf::Vector2f> GetCircuitPoints(sf::Vector2u windowSize) {
     };
 
     // Escalar moderado para curvas más largas
-    for (auto& p : points) {
+    for (auto& p : controlPoints) {
         p *= 1.3f;
     }
 
-    // Calcular bounding box de la pista
+    // Función Catmull-Rom
+    auto CatmullRom = [](const sf::Vector2f& p0, const sf::Vector2f& p1,
+        const sf::Vector2f& p2, const sf::Vector2f& p3, float t) {
+            float t2 = t * t;
+            float t3 = t2 * t;
+            return 0.5f * ((2.f * p1) +
+                (-p0 + p2) * t +
+                (2.f * p0 - 5.f * p1 + 4.f * p2 - p3) * t2 +
+                (-p0 + 3.f * p1 - 3.f * p2 + p3) * t3);
+        };
+
+    // Generar puntos suavizados
+    std::vector<sf::Vector2f> points;
+    int subdivisions = 20; // más subdivisiones = curva más suave
+    for (size_t i = 0; i < controlPoints.size(); ++i) {
+        const sf::Vector2f& p0 = controlPoints[(i + controlPoints.size() - 1) % controlPoints.size()];
+        const sf::Vector2f& p1 = controlPoints[i];
+        const sf::Vector2f& p2 = controlPoints[(i + 1) % controlPoints.size()];
+        const sf::Vector2f& p3 = controlPoints[(i + 2) % controlPoints.size()];
+
+        for (int j = 0; j <= subdivisions; ++j) {
+            float t = j / static_cast<float>(subdivisions);
+            points.push_back(CatmullRom(p0, p1, p2, p3, t));
+        }
+    }
+
+    // Calcular bounding box
     float minX = 99999, maxX = -99999, minY = 99999, maxY = -99999;
     for (auto& p : points) {
         minX = std::min(minX, p.x);

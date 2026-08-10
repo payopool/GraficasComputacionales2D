@@ -24,6 +24,7 @@
     <ClInclude Include="include\core\Window.h" />
     <ClInclude Include="include\ECS\ComponentPool.h" />
     <ClInclude Include="include\ECS\Component\Camera.h" />
+    <ClInclude Include="include\ECS\Component\LapData.h" />
     <ClInclude Include="include\ECS\Component\meta.h" />
     <ClInclude Include="include\ECS\Component\Render.h" />
     <ClInclude Include="include\ECS\Component\Steering.h" />
@@ -32,6 +33,7 @@
     <ClInclude Include="include\ECS\SparceSet.h" />
     <ClInclude Include="include\ECS\System.h" />
     <ClInclude Include="include\ECS\Systems\CameraSystem.h" />
+    <ClInclude Include="include\ECS\Systems\LeaderboardSystem.h" />
     <ClInclude Include="include\ECS\Systems\Rendersystem.h" />
     <ClInclude Include="include\ECS\Systems\SteeringSystem.h" />
     <ClInclude Include="include\ECS\Systems\UISystem.h" />
@@ -50,6 +52,7 @@
     <ClCompile Include="source\core\CShape.cpp" />
     <ClCompile Include="source\core\SteeringSystem.cpp" />
     <ClCompile Include="source\core\Window.cpp" />
+    <ClCompile Include="source\LeaderboardSystem.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

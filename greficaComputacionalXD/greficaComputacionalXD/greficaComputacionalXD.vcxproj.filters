@@ -96,6 +96,12 @@
     <ClInclude Include="include\ECS\Component\meta.h">
       <Filter>Archivos de encabezado\ECS\Components</Filter>
     </ClInclude>
+    <ClInclude Include="include\ECS\Component\LapData.h">
+      <Filter>Archivos de encabezado\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Systems\LeaderboardSystem.h">
+      <Filter>Archivos de encabezado\ECS\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">
@@ -126,6 +132,9 @@
       <Filter>Archivos de origen\Imgui</Filter>
     </ClCompile>
     <ClCompile Include="source\core\SteeringSystem.cpp">
+      <Filter>Archivos de recursos</Filter>
+    </ClCompile>
+    <ClCompile Include="source\LeaderboardSystem.cpp">
       <Filter>Archivos de recursos</Filter>
     </ClCompile>
   </ItemGroup>
